@@ -54,7 +54,7 @@ std::vector<std::vector<double>> DPS(
 			- std::vector<std::vector<double>> S
 				 N samples from X, heuristically optimized to satisfy the three criteria listed in source
 		
-		Note: S_hat should be passed as an empty vector, if it is not to be used. Ie DPS(X,std::vector<std::vector<double>>,N,ns,i_max,omega)
+		Note: S_hat should be passed as an empty vector, if it is not to be used. Ie DPS(X,std::vector<std::vector<double>>(),N,ns,i_max,omega)
 		
 	*/
 	
@@ -76,7 +76,7 @@ std::vector<std::vector<double>> DPS(
 	std::vector<std::vector<double>> S(N,std::vector<double>(n,0)); // final-sample
 	
 	for (int i = 0; i < N; i++){
-		S.at(i) = P.at(i).at(1);
+		S.at(i) = P.at(i).at(0);
 	}
 	
 	/* Creating Discretization of X (used in heuristic optimizer and F2 calculation) */ 
@@ -98,7 +98,7 @@ std::vector<std::vector<double>> DPS(
 	
 	double F1S, F2S, F3S;// S-criteria
 	double F1S_prime, F2S_prime, F3S_prime;// S_prime-criteria 
-	double Enorm = [](std::vector<double> a, std::vector<double> b)// Euclidean norm lamda-expression
+	auto Enorm = [](std::vector<double> a, std::vector<double> b)// Euclidean norm lamda-expression
 	{
 		double norm = 0;
 		for (int i = 0; i < a.size(); i++){
@@ -180,7 +180,7 @@ std::vector<std::vector<double>> DPS(
 				
 				x_c_prime = S.at(c);
 				double delta = Delta.at(i_maxchange)/2;// increment of i_maxchange parameter
-				if (DF13.at(imaxchange) < 0) {// increase i_maxchange parameter to decrease F13
+				if (DF13.at(i_maxchange) < 0) {// increase i_maxchange parameter to decrease F13
 					if (S.at(c).at(i_maxchange) + delta > X.at(c).at(1)) {
 						x_c_prime.at(i_maxchange) = X.at(c).at(1); 
 					}
@@ -206,7 +206,7 @@ std::vector<std::vector<double>> DPS(
 				F1S_prime = 0;
 				for (int p = 0; p < (N-1); p++){
 					for (int q = p + 1; q < N; q++){
-						M = Enorm(S.at(p),S.at(q));
+						M = Enorm(S_prime.at(p),S_prime.at(q));
 						F1S_prime += 1/(M*M);
 					}
 				}
