@@ -1,6 +1,8 @@
 #include <tinynurbs/tinynurbs.h>
 #include <glm/glm.hpp>
 #include <iostream>
+#include <algorithm>
+#include <vector>
 
 int main() {
 	
@@ -12,6 +14,9 @@ int main() {
 	crv.knots = {0, 0, 0, 1, 1, 1}; // std::vector of floats
 	crv.degree = 2;
 
+	std::vector<double> a = {1,2,3,4,2,13,2,4,223};
+	std::cout << std::max_element(a.begin(),a.end())-a.begin() << std::endl;
+	std::cout << a.begin() - a.begin() <<std::endl;
 	std::cout << "Hello World!" << std::endl;
 	
 	return 1;
