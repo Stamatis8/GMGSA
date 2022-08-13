@@ -1,5 +1,5 @@
-#ifndef DPS_H
-#define DPS_H
+#ifndef DPS_HPP
+#define DPS_HPP
 
 #include <vector>
 #include <cmath>
@@ -55,7 +55,6 @@ std::vector<std::vector<double>> DPS(
 				 N samples from X, heuristically optimized to satisfy the three criteria listed in source
 		
 		Note: S_hat should be passed as an empty vector, if it is not to be used. Ie DPS(X,std::vector<std::vector<double>>(),N,ns,i_max,omega)
-		
 	*/
 	
 	int n = X.size(); // number of parameters in design space
@@ -179,7 +178,8 @@ std::vector<std::vector<double>> DPS(
 				int i_maxchange = std::max_element(DF13_abs.begin(),DF13_abs.end()) - DF13_abs.begin();// parameter with max change on F1(S)
 				
 				x_c_prime = S.at(L);
-				double delta = Delta.at(i_maxchange)/2;// increment of i_maxchange parameter
+				double delta = std::max(N*Delta.at(i_maxchange)/(5*(iteration+1)),Delta.at(i_maxchange)/2);// increment of i_maxchange parameter
+																										// move less as iterations increase
 				if (DF13.at(i_maxchange) < 0) {// increase i_maxchange parameter to decrease F13
 					if (S.at(L).at(i_maxchange) + delta > X.at(i_maxchange).at(1)) {
 						x_c_prime.at(i_maxchange) = X.at(i_maxchange).at(1); 
@@ -323,4 +323,4 @@ std::vector<std::vector<double>> DPS(
 	
 }// DPS function
 
-#endif // DPS_H
+#endif // DPS_HPP
