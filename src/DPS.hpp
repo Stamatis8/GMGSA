@@ -122,7 +122,7 @@ std::vector<std::vector<double>> DPS(
 			
 			for (int c = 0; c < ns; c++){
 			
-				S.at(c) = P.at(L).at(c);
+				S.at(L) = P.at(L).at(c);
 				
 				/* Calculating F1S and DF1 */
 				
@@ -133,9 +133,9 @@ std::vector<std::vector<double>> DPS(
 						M = Enorm(S.at(p),S.at(q));
 						F1S += 1/(M*M);
 						
-						if (p == c || q == c) {
+						if (p == L || q == L) {
 							int coef = -2/(M*M*M*M);
-							if (q == c) coef *= -1;
+							if (q == L) coef *= -1;
 							for (int i = 0; i < n; i++){
 								DF1.at(i) += coef*(S.at(p).at(i) - S.at(q).at(i));
 							} 
@@ -157,7 +157,7 @@ std::vector<std::vector<double>> DPS(
 							M = Enorm(S.at(p),S_hat.at(q));
 							F3S += 1/(M*M);
 							
-							if (p == c) {
+							if (p == L) {
 								int coef = -2/(M*M*M*M);
 								for (int i = 0; i < n; i++){
 									DF3.at(i) += coef*(S.at(p).at(i) - S_hat.at(q).at(i));
@@ -178,11 +178,11 @@ std::vector<std::vector<double>> DPS(
 				}
 				int i_maxchange = std::max_element(DF13_abs.begin(),DF13_abs.end()) - DF13_abs.begin();// parameter with max change on F1(S)
 				
-				x_c_prime = S.at(c);
+				x_c_prime = S.at(L);
 				double delta = Delta.at(i_maxchange)/2;// increment of i_maxchange parameter
 				if (DF13.at(i_maxchange) < 0) {// increase i_maxchange parameter to decrease F13
-					if (S.at(c).at(i_maxchange) + delta > X.at(c).at(1)) {
-						x_c_prime.at(i_maxchange) = X.at(c).at(1); 
+					if (S.at(L).at(i_maxchange) + delta > X.at(i_maxchange).at(1)) {
+						x_c_prime.at(i_maxchange) = X.at(i_maxchange).at(1); 
 					}
 					else {
 						x_c_prime.at(i_maxchange) += delta;
@@ -190,8 +190,8 @@ std::vector<std::vector<double>> DPS(
 				}
 				else {// decrease i_maxchange parameter to decrease F13
 					delta *= -1;
-					if (S.at(c).at(i_maxchange) + delta < X.at(c).at(0)) {
-						x_c_prime.at(i_maxchange) = X.at(c).at(0); 
+					if (S.at(L).at(i_maxchange) + delta < X.at(i_maxchange).at(0)) {
+						x_c_prime.at(i_maxchange) = X.at(i_maxchange).at(0); 
 					}
 					else {
 						x_c_prime.at(i_maxchange) += delta;
@@ -199,7 +199,7 @@ std::vector<std::vector<double>> DPS(
 				}
 				
 				S_prime = S;
-				S_prime.at(c) = x_c_prime;
+				S_prime.at(L) = x_c_prime;
 				
 				/* Calculating F1S_prime */
 				
