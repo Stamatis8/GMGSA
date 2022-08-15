@@ -15,6 +15,53 @@ double MomentSthOrder(
 	bool is_invariant
 	);
 
+double DEBUG_TEMP(
+		double A, 
+		double B, 
+		double C, 
+		double D,
+		double E,
+		double F,
+		double G,
+		double H,
+		double I,
+		int a,
+		int b,
+		int c){
+		double result = 0;
+		int id = 0;
+		
+		NchooseK_cache NK;// N choose K cache
+		NK.get(std::max(a,std::max(b,c)),0);// Precomputing N choose k pairs for all k and N <= max(p,q,r)
+		
+		for (int ia = 0; ia <= a; ia++){
+			for (int ib = 0; ib <= b; ib++){
+				for (int ic = 0; ic <= c; ic++){
+				
+					id = a + b + c + 1 - ia - ib - ic;
+				
+					for (int ja = 0; ja <= ia; ja++){
+						for (int jb = 0; jb <= ib; jb++){
+							for (int jc = 0; jc <= ic; jc++){
+								for (int jd = 0; jd <= id; jd++){
+									result += NK.get(a,ia)*NK.get(b,ib)*NK.get(c,ic)*NK.get(ia,ja)*NK.get(ib,jb)*NK.get(ic,jc)*NK.get(id,jd)
+											* std::pow(A,a-ia)*std::pow(D,b-ib)*std::pow(G,c-ic)
+											* std::pow(B,ia-ja)*std::pow(C,ja)*std::pow(E,ib-jb)
+											* std::pow(F,jb)*std::pow(H,ic-jc)*std::pow(I,jc)
+											* std::pow(-1,jd)/(id*(a+b+c+2-ja-jb-jc-jd));
+								}//jd
+							}//jc
+						}//jb
+					}//ja
+					
+				}//ic
+			}//ib
+		}// ia
+		
+		return result;
+}// DEBUG_TEMP()
+
+
 double MomentSthOrder(
 	std::vector<std::vector<std::vector<double>>> triangles,
 	int p,
@@ -86,9 +133,18 @@ double MomentSthOrder(
 		a_mag = std::sqrt(a.at(0)*a.at(0) + a.at(1)*a.at(1) + a.at(2)*a.at(2));
 		b_mag = std::sqrt(b.at(0)*b.at(0) + b.at(1)*b.at(1) + b.at(2)*b.at(2));
 		
-		n.at(0) = (a.at(1)*b.at(2) - a.at(2)*b.at(1))/(a_mag*b_mag); 
-		n.at(1) = (a.at(2)*b.at(0) - a.at(0)*b.at(2))/(a_mag*b_mag);
-		n.at(2) = (a.at(0)*b.at(1) - a.at(1)*b.at(0))/(a_mag*b_mag);
+		//n.at(0) = (a.at(1)*b.at(2) - a.at(2)*b.at(1))/(a_mag*b_mag); 
+		//n.at(1) = (a.at(2)*b.at(0) - a.at(0)*b.at(2))/(a_mag*b_mag);
+		//n.at(2) = (a.at(0)*b.at(1) - a.at(1)*b.at(0))/(a_mag*b_mag);
+		
+		n.at(0) = (a.at(1)*b.at(2) - a.at(2)*b.at(1)); 
+		n.at(1) = (a.at(2)*b.at(0) - a.at(0)*b.at(2));
+		n.at(2) = (a.at(0)*b.at(1) - a.at(1)*b.at(0));
+		double n_mag = std::sqrt(n.at(0)*n.at(0) + n.at(1)*n.at(1) + n.at(2)*n.at(2));
+		n.at(0) /= n_mag;
+		n.at(1) /= n_mag;
+		n.at(2) /= n_mag;
+
 		
 		A = a.at(0);
 		B = b.at(0);
@@ -136,7 +192,7 @@ double MomentSthOrder(
 								
 									power_row = std::pow(B,ip-jp)*std::pow(C,jp)
 													  *std::pow(E,iq-jq)*std::pow(F,jq)
-													  *std::pow(H,ir-jr)*std::pow(I,jr)*pow(-1,jd);//common factor in G1,G1_bar,G1_tilde
+													  *std::pow(H,ir-jr)*std::pow(I,jr)*std::pow(-1,jd);//common factor in G1,G1_bar,G1_tilde
 								
 									if(jd != id + 1){// G1, G1_bar should be computed only in loop jd from 0 to id
 										
@@ -166,7 +222,28 @@ double MomentSthOrder(
 				}//ir
 			}//iq
 		}//ip
+	
 		I_t *= a_mag*b_mag/3;
+		
+		/* DEBUG: Evaluating I_t another way */
+		
+		double term1 = 0;
+		double term2 = 0;
+		double term3 = 0;
+		
+		term1 = DEBUG_TEMP(A,B,C,D,E,F,G,H,I,p+1,q,r);
+		term2 = DEBUG_TEMP(A,B,C,D,E,F,G,H,I,p,q+1,r);
+		term3 = DEBUG_TEMP(A,B,C,D,E,F,G,H,I,p,q,r+1);
+		
+		term1 *= n.at(0)/(p+1);
+		term2 *= n.at(1)/(q+1);
+		term3 *= n.at(2)/(r+1);
+		
+		//I_t = a_mag*b_mag*(term1 + term2 + term3)/3;
+		
+		double ab = a.at(0)*b.at(0) + a.at(1)*b.at(1) + a.at(2)*b.at(2);
+		I_t = std::sqrt(a_mag*a_mag*b_mag*b_mag - ab*ab)*(term1+term2+term3)/3;
+				
 		M += I_t;
 	}//triangles
 	
@@ -174,9 +251,8 @@ double MomentSthOrder(
 		M /= std::pow(volume,1+(p+q+r)/3);
 	}
 	
-	return(M);
+	return M;
 
 }// MomentSthOrder()
-
 
 #endif // MOMENTSTHORDER_HPP

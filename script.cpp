@@ -1,17 +1,20 @@
 #include <iostream>
 #include <vector>
+#include <cmath>
 
 #include "src/DPS.hpp"
-#include "src/SimpleTriangulation.hpp"
+#include "src/SimpleTriangulationClass.hpp"
+#include "src/SimpleTriangulationFun.hpp"
 #include "src/MomentSthOrder.hpp"
 
 #include "util/WriteToFile.hpp"
 #include "util/NchooseK.hpp"
 
+using namespace SimpleTriangulation;
 
 int main() {
 	
-	int test = 4;
+	int test = 5;
 	if (test == 1){
 		// DPS test
 			
@@ -24,6 +27,7 @@ int main() {
 	else if (test == 2){
 		// SimpleTriangulation test
 	
+		/*
 		std::vector<std::vector<std::vector<double>>> triangles = SimpleTriangulation(std::vector<double> {0, 1}, std::vector<double> {0, 1}, 100);
 		
 		std::cout << std::endl;
@@ -37,6 +41,7 @@ int main() {
 			std::cout << std::endl << std::endl;
 		}
 		std::cout<< std::endl;
+		*/
 	}
 	else if (test == 3){
 		// NchooseK struct test
@@ -98,38 +103,39 @@ int main() {
 																	  }
 																	},
 																	{//triangle 5
-																	  {0,0,0
-																	  },
 																	  {1,0,0
 																	  },
-																	  {0,0,1
+																	  {1,0,1
+																	  },
+																	  {1,1,0
 																	  }
 																	},
 																	{//triangle 6
+																	  {0,0,0
+																	  },
+																	  {0,0,1
+																	  },
 																	  {0,1,0
-																	  },
-																	  {1,1,0
-																	  },
-																	  {0,1,1
 																	  }
 																	},
 																	{//triangle 7
-																	  {0,0,1
-																	  },
-																	  {1,0,0
+																	  {1,0,1
 																	  },
 																	  {1,1,0
+																	  },
+																	  {0,0,1
 																	  }
 																	},
 																	{//triangle 8
 																	  {0,0,1
 																	  },
-																	  {0,1,1
+																	  {0,1,0
 																	  },
 																	  {1,1,0
 																	  }
 																	}
 																  };
+		
 		triangles = {
 						{//triangle 1
 							{0,0,0
@@ -164,8 +170,85 @@ int main() {
 							}
 						}
 					};											  
+		
+		
 			
-		std::cout<< MomentSthOrder(triangles,0,0,0,false)<<std::endl;
+		std::cout<< "With Moment Function: " << MomentSthOrder(triangles,0,0,0,false)<<std::endl;
+		
+		/* DEBUG: Manual Calculation */
+		
+		double M = 0;
+		for (int t = 0; t < triangles.size(); t++){
+			double I_t = 0;
+			
+			std::vector<double> a(3,0);
+			std::vector<double> b(3,0);
+			std::vector<double> c(3,0);
+			std::vector<double> n(3,0);
+			
+			double a_mag;
+			double b_mag;
+			double n_mag;
+			
+			a.at(0) = triangles.at(t).at(1).at(0) - triangles.at(t).at(0).at(0);
+			a.at(1) = triangles.at(t).at(1).at(1) - triangles.at(t).at(0).at(1);
+			a.at(2) = triangles.at(t).at(1).at(2) - triangles.at(t).at(0).at(2);
+			
+			b.at(0) = triangles.at(t).at(2).at(0) - triangles.at(t).at(0).at(0);
+			b.at(1) = triangles.at(t).at(2).at(1) - triangles.at(t).at(0).at(1);
+			b.at(2) = triangles.at(t).at(2).at(2) - triangles.at(t).at(0).at(2);
+			
+			c = triangles.at(t).at(0); 
+			
+			a_mag = std::sqrt(a.at(0)*a.at(0) + a.at(1)*a.at(1) + a.at(2)*a.at(2));
+			b_mag = std::sqrt(b.at(0)*b.at(0) + b.at(1)*b.at(1) + b.at(2)*b.at(2));
+				
+			n.at(0) = (a.at(1)*b.at(2) - a.at(2)*b.at(1)); 
+			n.at(1) = (a.at(2)*b.at(0) - a.at(0)*b.at(2));
+			n.at(2) = (a.at(0)*b.at(1) - a.at(1)*b.at(0));
+			n_mag = std::sqrt(n.at(0)*n.at(0) + n.at(1)*n.at(1) + n.at(2)*n.at(2));
+			n.at(0) /= n_mag;
+			n.at(1) /= n_mag;
+			n.at(2) /= n_mag;
+			
+			double ab = a.at(0)*b.at(0) + a.at(1)*b.at(1) + a.at(2)*b.at(2);
+			double VDa = std::sqrt(a_mag*a_mag*b_mag*b_mag - ab*ab);
+			
+			I_t = (1/6)*(n.at(0)*(a.at(0)/3+b.at(0)/3+c.at(0)) 
+					   + n.at(1)*(a.at(1)/3+b.at(1)/3+c.at(1))
+					   + n.at(2)*(a.at(2)/3+b.at(2)/3+c.at(2))	
+						);
+			
+			I_t *= VDa;
+			
+			M += I_t;
+		}	
+		
+		std::cout<< "With Manual Calculation: " << M <<std::endl;
+	}
+	else if (test == 5){
+		
+		std::vector<std::vector<double>> nodes = {
+													{0,0,0},
+													{1,0,0},
+													{0,1,0},
+													{1,1,0},
+													{2,0,0},
+													{2,1,0}
+											};
+		std::vector<std::vector<int>> faces = {
+												{0,2,1,1,0,0},
+												{1,3,2,1,0,2},
+												{1,3,5,2,3,1},
+												{4,5,1,2,3,3}
+											};
+		Triangulation<std::vector<double>> T(nodes,faces);
+		
+		T.orient();
+		
+		make_stl(T,"mytriangulation.stl");
+		
+		int temp = 10;
 	}
 	return 0;
 }
