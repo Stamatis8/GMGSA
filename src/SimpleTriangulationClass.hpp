@@ -10,6 +10,10 @@ namespace SimpleTriangulation{
 	class Triangulation
 	{
 	public:
+		/*
+			vertex class requirements:
+				- must have default constructor vertex()
+		*/
 		
 		std::vector<vertex> nodes;
 		//  a list of all the vertices
@@ -54,6 +58,25 @@ namespace SimpleTriangulation{
 		}
 		
 		/* Methods */
+		
+		operator std::vector<std::vector<vertex>>() {
+			/*
+				Description: Converts this triangulation data structure into a simpler form, removing connectivity information.
+				
+				- Output:
+					- std::vector<std::vector<vertex>> T
+						- T.at(i) represents the ith face
+						- T.at(i).at(j) for j = 0,1,2 are the 1st 2nd and 3rd vertices of the ith face
+							respectively
+			*/
+			std::vector<std::vector<vertex>> T(this->faces.size(),std::vector<vertex>(3,vertex()));
+			
+			for (int i = 0; i < this->faces.size(); i++){
+				T.at(i) = this->get_vertices(i);
+			}
+			
+			return T;
+		}
 		
 		std::vector<vertex> get_vertices(int i){
 			/*

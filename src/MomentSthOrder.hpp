@@ -9,11 +9,83 @@
 
 double MomentSthOrder(
 	std::vector<std::vector<std::vector<double>>> triangles,
-	int p,
-	int q,
+	int i,
+	int j,
+	int k,
 	int r,
 	bool is_invariant
 	);
+
+double MomentSthOrder(
+	std::vector<std::vector<std::vector<double>>> triangles,
+	int i,
+	int j,
+	int k,
+	int r,
+	bool is_invariant
+	)
+{
+	/*
+		Description: The input variable triangles describes the triangulation of a surface S, which encloses a volume G. This function calculates the
+			s = (p+q+r) order geometric moment of G, according to Pozo's et.al. - *Approximate Series Algorithm For Geometric Moments* which can be found in
+			section 4 of [1]. Further, the translation and scaling invariant moments of G can also be calculated as in section 3.2.1 of [2] 
+					
+		References:
+		
+			[1] Efficient 3D Geometric and Zernike moments computation from unstructured surface meshes J. M. Pozo, M. C. Villa-Uriol,
+				A. F. Frangi, Senior Member, IEEE
+				
+			[2] Geometric Moment-Dependent Global Sensitivity Analysis without Simulation Data: Application to Ship Hull Form Optimisation, S. Khan, 
+				P. Kaklis, 2022
+		
+		Input:
+		
+			- std::vector<std::vector<std::vector<double>>> triangles
+				triangles.at(p) is the pth triangle with vertices triangles.at(p).at(q), q=0,1,2. Each vertex must have three elements
+			- int i
+				i >= 0
+			- int j
+				j >= 0
+			- int k
+				k >= 0
+			- int r
+				0 <= r <= i+j+k
+			- bool is_translation_invariant
+				if true, calculates the translation invariant moment form of G (ie centered at it's center of volume)
+				By definition all first order moments are equal to zero, so if i+j+k = 1, set M = 0
+			- bool is_scaling_invariant
+				if true, calculates the scaling invariant moment form of G 
+				By definition volume is equal to 1, so if i+j+k = 0, set M = 1
+		Output:
+		
+			- double M
+				the s = (i+j+k) order moment of G, according to options is_translation_invariant and is_scaling_invariant
+	*/
+
+	/* If is_translation_invariant, translate mesh */
+	
+	/* Initializing variables */
+	
+	int T = triangles.size();// number of triangles
+	
+	std::vector<std::vector<double>> p_bar = // p_bar.at(i) = centroid of ith triangle
+		std::vector<std::vector<double>>(T,std::vector<double>(3,0)); 
+	
+	std::vector<std::vector<double>> u_hat = // Sec.4 of [2]
+		std::vector<std::vector<double>>(T,std::vector<double>(3,0));
+	
+	std::vector<std::vector<double>> v_hat = // Sec.4 of [2]
+		std::vector<std::vector<double>>(T,std::vector<double>(3,0));
+	
+	//area c lamda expression
+	
+	double lamda = 0;
+	
+	
+	/* If is_scaling_invariant, divide final moment M by volume^(1+s/3) */
+
+	return 0;
+}
 
 double DEBUG_TEMP(
 		double A, 
@@ -62,7 +134,7 @@ double DEBUG_TEMP(
 }// DEBUG_TEMP()
 
 
-double MomentSthOrder(
+double old_MomentSthOrder(
 	std::vector<std::vector<std::vector<double>>> triangles,
 	int p,
 	int q,
@@ -157,13 +229,13 @@ double MomentSthOrder(
 		I = c.at(2);
 	
 		if (is_invariant){//amending A through I (translational invariance)
-			volume = MomentSthOrder(triangles,0,0,0,false);
+			volume = old_MomentSthOrder(triangles,0,0,0,false);
 			
 			/***** Todo: Handle volume == 0 *****/
 			
-			centroid.at(0) = MomentSthOrder(triangles,1,0,0,false)/volume;
-			centroid.at(1) = MomentSthOrder(triangles,1,0,0,false)/volume;
-			centroid.at(2) = MomentSthOrder(triangles,1,0,0,false)/volume;
+			centroid.at(0) = old_MomentSthOrder(triangles,1,0,0,false)/volume;
+			centroid.at(1) = old_MomentSthOrder(triangles,1,0,0,false)/volume;
+			centroid.at(2) = old_MomentSthOrder(triangles,1,0,0,false)/volume;
 			
 			C -= centroid.at(0);
 			F -= centroid.at(1);
@@ -171,59 +243,6 @@ double MomentSthOrder(
 		}		
 		
 		/* Evaluating I_t */
-		
-		I_t = 0;
-		
-		for (int ip = 0; ip <= p; ip++){
-			for (int iq = 0; iq <= q; iq++){
-				for (int ir = 0; ir <= r; ir++){
-				
-					id = p + q + r + 1 - ip - iq - ir;
-				
-					/* Evaluating G1 G1_bar G1_tilde */
-					G1 = 0;
-					G1_bar = 0;
-					G1_tilde = 0;
-					
-					for (int jp = 0; jp <= ip; jp++){
-						for (int jq = 0; jq <= iq; jq++){
-							for (int jr = 0; jr <= ir; jr++){
-								for (int jd = 0; jd <= id + 1; jd++){
-								
-									power_row = std::pow(B,ip-jp)*std::pow(C,jp)
-													  *std::pow(E,iq-jq)*std::pow(F,jq)
-													  *std::pow(H,ir-jr)*std::pow(I,jr)*std::pow(-1,jd);//common factor in G1,G1_bar,G1_tilde
-								
-									if(jd != id + 1){// G1, G1_bar should be computed only in loop jd from 0 to id
-										
-										G1_bar += NK.get(ip,jp)*NK.get(iq,jq)*NK.get(ir,jr)*NK.get(id,jd)
-											* power_row
-											/ (p + q + r + 2 - jp - jq - jr -jd);
-										
-										G1_bar += NK.get(ip,jp)*NK.get(iq,jq)*NK.get(ir,jr)*NK.get(id,jd)
-											* power_row
-											/ ((p + q + r + 3 - jp - jq - jr -jd) * (p + q + r + 2 - jp - jq - jr -jd));
-									}
-									
-									G1_tilde += NK.get(ip,jp)*NK.get(iq,jq)*NK.get(ir,jr)*NK.get(id+1,jd)
-											* power_row
-											/ (p + q + r + 3 - jp - jq - jr -jd);
-								}//jd
-							}//jr
-						}//jq
-					}//jp
-				
-					/*  Evaluating I_t */
-					
-					I_t += (n.at(0)*(B-A)/(p+1) + n.at(1)*(E-D)/(q+1) + n.at(2)*(H-G)/(r+1))*(G1-G1_bar)/id
-						 + (n.at(0)*(C+A)/(p+1) + n.at(1)*(F+D)/(q+1) + n.at(2)*(I+G)/(r+1))*G1/id
-						 - (n.at(0)*A/(p+1) + n.at(1)*D/(q+1) + n.at(2)*G/(r+1))*G1_tilde/(id*(id+1));
-				
-				}//ir
-			}//iq
-		}//ip
-	
-		I_t *= a_mag*b_mag/3;
 		
 		/* DEBUG: Evaluating I_t another way */
 		

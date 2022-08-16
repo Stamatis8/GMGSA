@@ -14,7 +14,7 @@ using namespace SimpleTriangulation;
 
 int main() {
 	
-	int test = 5;
+	int test = 4;
 	if (test == 1){
 		// DPS test
 			
@@ -81,17 +81,17 @@ int main() {
 																	{//triangle 2
 																	  {0,0,0
 																	  },
-																	  {0,1,0
-																	  },
 																	  {1,1,0
+																	  },
+																	  {0,1,0
 																	  }
 																	},
 																	{//triangle 3
 																	  {0,0,0
 																	  },
-																	  {1,0,0
-																	  },
 																	  {1,0,1
+																	  },
+																	  {1,0,0
 																	  }
 																	},
 																	{//triangle 4
@@ -113,17 +113,17 @@ int main() {
 																	{//triangle 6
 																	  {0,0,0
 																	  },
-																	  {0,0,1
-																	  },
 																	  {0,1,0
+																	  },
+																	  {0,0,1
 																	  }
 																	},
 																	{//triangle 7
 																	  {1,0,1
 																	  },
-																	  {1,1,0
-																	  },
 																	  {0,0,1
+																	  },
+																	  {1,1,0
 																	  }
 																	},
 																	{//triangle 8
@@ -173,7 +173,7 @@ int main() {
 		
 		
 			
-		std::cout<< "With Moment Function: " << MomentSthOrder(triangles,0,0,0,false)<<std::endl;
+		std::cout<< "With Moment Function: " << old_MomentSthOrder(triangles,0,0,0,false)<<std::endl;
 		
 		/* DEBUG: Manual Calculation */
 		
@@ -249,6 +249,13 @@ int main() {
 		make_stl(T,"mytriangulation.stl");
 		
 		int temp = 10;
+	}
+	else if (test == 6){
+		Triangulation<std::vector<double>> T = PlanarTriangulation({0,2},{0,2},8);
+		
+		T.orient();
+		
+		make_stl(T,"mytriangulation.stl");
 	}
 	return 0;
 }
