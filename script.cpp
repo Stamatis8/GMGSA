@@ -6,9 +6,10 @@
 #include "src/SimpleTriangulationClass.hpp"
 #include "src/SimpleTriangulationFun.hpp"
 #include "src/MomentSthOrder.hpp"
+#include "src/NchooseK_cache.hpp"
+#include "src/J_cache.hpp"
 
 #include "util/WriteToFile.hpp"
-#include "util/NchooseK.hpp"
 
 using namespace SimpleTriangulation;
 
@@ -135,7 +136,7 @@ int main() {
 																	  }
 																	}
 																  };
-		
+		/*
 		triangles = {
 						{//triangle 1
 							{0,0,0
@@ -170,61 +171,12 @@ int main() {
 							}
 						}
 					};											  
+		*/
 		
+			
+		std::cout<< "With Old Moment Function: " << old_MomentSthOrder(triangles,0,0,0,false)<<std::endl;
 		
-			
-		std::cout<< "With Moment Function: " << old_MomentSthOrder(triangles,0,0,0,false)<<std::endl;
-		
-		/* DEBUG: Manual Calculation */
-		
-		double M = 0;
-		for (int t = 0; t < triangles.size(); t++){
-			double I_t = 0;
-			
-			std::vector<double> a(3,0);
-			std::vector<double> b(3,0);
-			std::vector<double> c(3,0);
-			std::vector<double> n(3,0);
-			
-			double a_mag;
-			double b_mag;
-			double n_mag;
-			
-			a.at(0) = triangles.at(t).at(1).at(0) - triangles.at(t).at(0).at(0);
-			a.at(1) = triangles.at(t).at(1).at(1) - triangles.at(t).at(0).at(1);
-			a.at(2) = triangles.at(t).at(1).at(2) - triangles.at(t).at(0).at(2);
-			
-			b.at(0) = triangles.at(t).at(2).at(0) - triangles.at(t).at(0).at(0);
-			b.at(1) = triangles.at(t).at(2).at(1) - triangles.at(t).at(0).at(1);
-			b.at(2) = triangles.at(t).at(2).at(2) - triangles.at(t).at(0).at(2);
-			
-			c = triangles.at(t).at(0); 
-			
-			a_mag = std::sqrt(a.at(0)*a.at(0) + a.at(1)*a.at(1) + a.at(2)*a.at(2));
-			b_mag = std::sqrt(b.at(0)*b.at(0) + b.at(1)*b.at(1) + b.at(2)*b.at(2));
-				
-			n.at(0) = (a.at(1)*b.at(2) - a.at(2)*b.at(1)); 
-			n.at(1) = (a.at(2)*b.at(0) - a.at(0)*b.at(2));
-			n.at(2) = (a.at(0)*b.at(1) - a.at(1)*b.at(0));
-			n_mag = std::sqrt(n.at(0)*n.at(0) + n.at(1)*n.at(1) + n.at(2)*n.at(2));
-			n.at(0) /= n_mag;
-			n.at(1) /= n_mag;
-			n.at(2) /= n_mag;
-			
-			double ab = a.at(0)*b.at(0) + a.at(1)*b.at(1) + a.at(2)*b.at(2);
-			double VDa = std::sqrt(a_mag*a_mag*b_mag*b_mag - ab*ab);
-			
-			I_t = (1/6)*(n.at(0)*(a.at(0)/3+b.at(0)/3+c.at(0)) 
-					   + n.at(1)*(a.at(1)/3+b.at(1)/3+c.at(1))
-					   + n.at(2)*(a.at(2)/3+b.at(2)/3+c.at(2))	
-						);
-			
-			I_t *= VDa;
-			
-			M += I_t;
-		}	
-		
-		std::cout<< "With Manual Calculation: " << M <<std::endl;
+		std::cout<< "With New Moment Function: " << MomentSthOrder(triangles,0,0,0,0,false,false)<<std::endl;
 	}
 	else if (test == 5){
 		
@@ -256,6 +208,16 @@ int main() {
 		T.orient();
 		
 		make_stl(T,"mytriangulation.stl");
+	}
+	else if (test == 7){
+		J_cache J;
+		
+		std::cout << "J(0,0) = "<< J.get(0,0) << std::endl;
+		std::cout << "J(1,0) = "<< J.get(1,0) << std::endl;
+		std::cout << "J(0,1) = "<< J.get(0,1) << std::endl;
+		std::cout << "J(1,1) = "<< J.get(1,1) << std::endl;
+		std::cout << "J(2,0) = "<< J.get(2,0) << std::endl;
+		std::cout << "J(0,2) = "<< J.get(0,2) << std::endl;
 	}
 	return 0;
 }

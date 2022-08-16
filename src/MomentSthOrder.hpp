@@ -14,7 +14,8 @@ double MomentSthOrder(
 	int j,
 	int k,
 	int degree,
-	bool is_invariant
+	bool is_translation_invariant,
+	bool is_scaling_invariant
 	);
 
 double MomentSthOrder(
@@ -23,7 +24,8 @@ double MomentSthOrder(
 	int j,
 	int k,
 	int degree,
-	bool is_invariant
+	bool is_translation_invariant = false,
+	bool is_scaling_invariant = false
 	)
 {
 	/*
@@ -31,6 +33,8 @@ double MomentSthOrder(
 			s = (i+j+k) order geometric moment of G, according to Pozo's et.al. - *Approximate Series Algorithm For Geometric Moments* which can be found in
 			section 4 of [1]. Further, the translation and scaling invariant moments of G can also be calculated as in section 3.2.1 of [2] 
 					
+		Note: exact result for degree == i + j + k
+		
 		References:
 		
 			[1] Efficient 3D Geometric and Zernike moments computation from unstructured surface meshes J. M. Pozo, M. C. Villa-Uriol,
@@ -51,19 +55,33 @@ double MomentSthOrder(
 				k >= 0
 			- int degree
 				0 <= degree <= i+j+k
+				exact result if degree == i+j+k
 			- bool is_translation_invariant
 				if true, calculates the translation invariant moment form of G (ie centered at it's center of volume)
 				By definition all first order moments are equal to zero, so if i+j+k = 1, set M = 0
+				default to false
 			- bool is_scaling_invariant
 				if true, calculates the scaling invariant moment form of G 
 				By definition volume is equal to 1, so if i+j+k = 0, set M = 1
+				default to false
 		Output:
 		
 			- double M
 				the s = (i+j+k) order moment of G, according to options is_translation_invariant and is_scaling_invariant
 	*/
 
-	/* If is_translation_invariant, translate mesh */
+	/* Resolving some cases by definition */
+
+	if ((i+j+k)==0 && is_scaling_invariant){
+		// if scaling invariant, then by definition volume is equal to 1
+	
+		return 1;
+	}
+	else if ((i+j+k)==1 && is_translation_invariant){
+		// if centered at volume centroid, then by definition 1st order moments are equal to zero
+		
+		return 0;
+	}
 	
 	/* Initializing variables */
 	
@@ -98,13 +116,41 @@ double MomentSthOrder(
 	
 	auto VolC = [](std::vector<double> p1, std::vector<double> p2, std::vector<double> p3){// tetrahedra oriented volumes
 		return ((
-				p1.at(0)*(p2.at(1)*p3.at(2) - p2.at(2)*p3.at(1))
-			  - p1.at(1)*(p2.at(0)*p3.at(2) - p2.at(2)*p3.at(0))
-			  + p1.at(2)*(p2.at(0)*p3.at(1) - p2.at(1)*p3.at(0))
+				  p1.at(0)*(p2.at(1)*p3.at(2)-p3.at(1)*p2.at(2))
+				- p1.at(1)*(p3.at(2)*p2.at(0)-p2.at(2)*p3.at(0))
+				+ p1.at(2)*(p2.at(0)*p3.at(1)-p3.at(0)*p2.at(1))
 				)/6);
 	};
 	
-	double lamda = 0;// Sec.4 of [2]
+	/* If is_translation_invariant, translate mesh */
+	
+	double V = 0; //volume
+	
+	if (is_translation_invariant){
+	
+		V = MomentSthOrder(triangles,0,0,0,false,false);
+		
+		double Cx = MomentSthOrder(triangles,1,0,0,false,false)/V;// centroid x
+		double Cy = MomentSthOrder(triangles,0,1,0,false,false)/V;// centroid y
+		double Cz = MomentSthOrder(triangles,0,0,1,false,false)/V;// centroid z
+		
+		for (int i = 0; i < T; i++){
+			//First Vertex
+			triangles.at(i).at(0).at(0) -= Cx;
+			triangles.at(i).at(0).at(1) -= Cy;
+			triangles.at(i).at(0).at(2) -= Cz;
+			
+			//Third Vertex
+			triangles.at(i).at(1).at(0) -= Cx;
+			triangles.at(i).at(1).at(1) -= Cy;
+			triangles.at(i).at(1).at(2) -= Cz;
+			
+			//Second Vertex
+			triangles.at(i).at(2).at(0) -= Cx;
+			triangles.at(i).at(2).at(1) -= Cy;
+			triangles.at(i).at(2).at(2) -= Cz;
+		}
+	}
 	
 	/* Calculating p_bar, u, v */
 	
@@ -123,6 +169,8 @@ double MomentSthOrder(
 	}
 	
 	/* Calculating lamda */
+	
+	double lamda = 0;// Sec.4 of [2]
 	
 	double facet_area_sum = 0;// see nominator of lamda definition
 	double weight_facet_area_sum = 0;// see denominator of lamda definition
@@ -153,11 +201,21 @@ double MomentSthOrder(
 	
 	double M = 0;// final result
 	int n = i + j + k;
-	double S_ijk;// Sec.4 of [2]
-	double S_ijk_r;
+	double S_ijk;// Sec.4 of [1]
+	double S_ijk_r;// Sec.4 of [1]
+	
+	int i1;// Sec.4 of [1]
+	int j1;// etc.
+	int k1;
+	int k3;
+	int kplus;
+	int i3;
+	int j3;
 	
 	NchooseK_cache NK;// N choose K cache
 	NK.get(std::max(i,std::max(j,k)),0);// Precomputing N choose m pairs for all m and N <= max(i,j,k)
+	
+	J_cache J;// initializing Jab integral cache. See appendix 1 of [1]
 	
 	for (int c = 0; c < T; c++){// facets
 		
@@ -168,17 +226,54 @@ double MomentSthOrder(
 		
 			/* S_ijk^r calculation */
 			
+			S_ijk_r = 0;
+			for (int iplus = std::max(0,r-j-k); iplus <= std::min(i,r); iplus++){
+				for (int jplus = std::max(0,r-k-iplus);jplus <= std::min(j,r-iplus); jplus++){
+					for (int i2 = 0; i2 <= iplus; i2++){
+						for (int j2 = 0; j2 <= jplus; j2++){
+							kplus = r - iplus - jplus;
+							for (int k2 = 0; k2 <= kplus; k2++){
+							
+								i1 = i - iplus;
+								j1 = j - jplus;
+								k1 = k - kplus;
+								i3 = iplus - i2;
+								j3 = jplus - j2;
+								k3 = kplus - k2;
+							
+								S_ijk_r += NK.get(i,iplus)*NK.get(j,jplus)*NK.get(k,kplus)
+										 * NK.get(iplus,i2)*NK.get(jplus,j2)*NK.get(kplus,k2)
+										 * J.get(i2+j2+k2,r-i2-j2-k2)
+										 * std::pow(p_bar.at(c).at(0),i1)*std::pow(p_bar.at(c).at(1),j1)*std::pow(p_bar.at(c).at(2),i3)
+										 * std::pow(u_hat.at(c).at(0),i2)*std::pow(u_hat.at(c).at(1),j2)*std::pow(u_hat.at(c).at(2),j3)
+										 * std::pow(v_hat.at(c).at(0),i3)*std::pow(v_hat.at(c).at(1),j3)*std::pow(v_hat.at(c).at(2),k3);
+							}//k2
+						}//j2
+					}//i2
+				}// jplus
+			}// iplus
+			
 			S_ijk += std::pow(lamda,r)*S_ijk_r;
 		}
 		
 		M += 6*VolC(triangles.at(c).at(0),triangles.at(c).at(1),triangles.at(c).at(2))*S_ijk;
 	}
 	
-	M*= 1/(n+3);
+	M /= (n+3);
 	
 	/* If is_scaling_invariant, divide final moment M by volume^(1+s/3) */
-
-	return 0;
+	
+	if (is_scaling_invariant){
+		if(!is_translation_invariant){
+			// volume has not been calculated
+			
+			V = MomentSthOrder(triangles,0,0,0,false,false);
+		}
+		
+		M /= std::pow(V,(1+(i+j+k)/3));
+	}
+	
+	return M;
 }
 
 double DEBUG_TEMP(
