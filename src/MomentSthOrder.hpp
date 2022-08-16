@@ -5,14 +5,15 @@
 #include <cmath>
 #include <algorithm>
 
-#include "../util/NchooseK.hpp"
+#include "NchooseK_cache.hpp"
+#include "J_cache.hpp"
 
 double MomentSthOrder(
 	std::vector<std::vector<std::vector<double>>> triangles,
 	int i,
 	int j,
 	int k,
-	int r,
+	int degree,
 	bool is_invariant
 	);
 
@@ -21,13 +22,13 @@ double MomentSthOrder(
 	int i,
 	int j,
 	int k,
-	int r,
+	int degree,
 	bool is_invariant
 	)
 {
 	/*
 		Description: The input variable triangles describes the triangulation of a surface S, which encloses a volume G. This function calculates the
-			s = (p+q+r) order geometric moment of G, according to Pozo's et.al. - *Approximate Series Algorithm For Geometric Moments* which can be found in
+			s = (i+j+k) order geometric moment of G, according to Pozo's et.al. - *Approximate Series Algorithm For Geometric Moments* which can be found in
 			section 4 of [1]. Further, the translation and scaling invariant moments of G can also be calculated as in section 3.2.1 of [2] 
 					
 		References:
@@ -48,8 +49,8 @@ double MomentSthOrder(
 				j >= 0
 			- int k
 				k >= 0
-			- int r
-				0 <= r <= i+j+k
+			- int degree
+				0 <= degree <= i+j+k
 			- bool is_translation_invariant
 				if true, calculates the translation invariant moment form of G (ie centered at it's center of volume)
 				By definition all first order moments are equal to zero, so if i+j+k = 1, set M = 0
@@ -71,16 +72,109 @@ double MomentSthOrder(
 	std::vector<std::vector<double>> p_bar = // p_bar.at(i) = centroid of ith triangle
 		std::vector<std::vector<double>>(T,std::vector<double>(3,0)); 
 	
-	std::vector<std::vector<double>> u_hat = // Sec.4 of [2]
+	std::vector<std::vector<double>> u = // Sec.4 of [1]
 		std::vector<std::vector<double>>(T,std::vector<double>(3,0));
 	
-	std::vector<std::vector<double>> v_hat = // Sec.4 of [2]
+	std::vector<std::vector<double>> v = // Sec.4 of [1]
 		std::vector<std::vector<double>>(T,std::vector<double>(3,0));
 	
-	//area c lamda expression
+	std::vector<std::vector<double>> u_hat = // Sec.4 of [1]
+		std::vector<std::vector<double>>(T,std::vector<double>(3,0));
 	
-	double lamda = 0;
+	std::vector<std::vector<double>> v_hat = // Sec.4 of [1]
+		std::vector<std::vector<double>>(T,std::vector<double>(3,0));
 	
+	auto mag = [](std::vector<double> a){// magnitude lamda function
+		return (std::sqrt(a.at(0)*a.at(0) + a.at(1)*a.at(1) + a.at(2)*a.at(2)));
+	};
+	
+	auto AreaC = [](std::vector<double> u, std::vector<double> v){// triangle area lamda function
+		double n1, n2, n3;
+		n1 = (u.at(1)*v.at(2) - u.at(2)*v.at(1)); 
+		n2 = (u.at(2)*v.at(0) - u.at(0)*v.at(2));
+		n3 = (u.at(0)*v.at(1) - u.at(1)*v.at(0));
+		return (std::sqrt(n1*n1 + n2*n2 + n3*n3)/2);
+	};
+	
+	auto VolC = [](std::vector<double> p1, std::vector<double> p2, std::vector<double> p3){// tetrahedra oriented volumes
+		return ((
+				p1.at(0)*(p2.at(1)*p3.at(2) - p2.at(2)*p3.at(1))
+			  - p1.at(1)*(p2.at(0)*p3.at(2) - p2.at(2)*p3.at(0))
+			  + p1.at(2)*(p2.at(0)*p3.at(1) - p2.at(1)*p3.at(0))
+				)/6);
+	};
+	
+	double lamda = 0;// Sec.4 of [2]
+	
+	/* Calculating p_bar, u, v */
+	
+	for (int i = 0; i < T; i++){
+		p_bar.at(i).at(0) = (triangles.at(i).at(0).at(0) + triangles.at(i).at(1).at(0) + triangles.at(i).at(2).at(0))/3;
+		p_bar.at(i).at(1) = (triangles.at(i).at(0).at(1) + triangles.at(i).at(1).at(1) + triangles.at(i).at(2).at(1))/3;
+		p_bar.at(i).at(2) = (triangles.at(i).at(0).at(2) + triangles.at(i).at(1).at(2) + triangles.at(i).at(2).at(2))/3;
+		
+		u.at(i).at(0) = triangles.at(i).at(0).at(0) - triangles.at(i).at(2).at(0);
+		u.at(i).at(1) = triangles.at(i).at(0).at(1) - triangles.at(i).at(2).at(1);
+		u.at(i).at(2) = triangles.at(i).at(0).at(2) - triangles.at(i).at(2).at(2);
+		
+		v.at(i).at(0) = triangles.at(i).at(1).at(0) - triangles.at(i).at(2).at(0);
+		v.at(i).at(1) = triangles.at(i).at(1).at(1) - triangles.at(i).at(2).at(1);
+		v.at(i).at(2) = triangles.at(i).at(1).at(2) - triangles.at(i).at(2).at(2);
+	}
+	
+	/* Calculating lamda */
+	
+	double facet_area_sum = 0;// see nominator of lamda definition
+	double weight_facet_area_sum = 0;// see denominator of lamda definition
+	double A = 0;// area of current rectangle
+	double p_bar_mag = 0;// magnitude of current p_bar
+	
+	for (int i = 0; i < T; i++){
+		A = AreaC(u.at(i),v.at(i));
+		facet_area_sum += A;
+		weight_facet_area_sum += mag(p_bar.at(i))*A;
+	}
+	
+	lamda = std::sqrt(4*std::pow(facet_area_sum,3)/(T*std::sqrt(3)))/weight_facet_area_sum;
+	
+	/* Calculating u_hat, v_hat */
+	
+	for (int i = 0; i < T; i++){
+		u_hat.at(i).at(0) = u.at(i).at(0)/lamda;
+		u_hat.at(i).at(1) = u.at(i).at(1)/lamda;
+		u_hat.at(i).at(2) = u.at(i).at(2)/lamda;
+		
+		v_hat.at(i).at(0) = v.at(i).at(0)/lamda;
+		v_hat.at(i).at(1) = v.at(i).at(1)/lamda;
+		v_hat.at(i).at(2) = v.at(i).at(2)/lamda;
+	}
+	
+	/* Initialize M calculation */
+	
+	double M = 0;// final result
+	int n = i + j + k;
+	double S_ijk;// Sec.4 of [2]
+	double S_ijk_r;
+	
+	NchooseK_cache NK;// N choose K cache
+	NK.get(std::max(i,std::max(j,k)),0);// Precomputing N choose m pairs for all m and N <= max(i,j,k)
+	
+	for (int c = 0; c < T; c++){// facets
+		
+		/* S_ijk calculation */
+		
+		S_ijk = 0;
+		for (int r = 0; r <= degree; r++){
+		
+			/* S_ijk^r calculation */
+			
+			S_ijk += std::pow(lamda,r)*S_ijk_r;
+		}
+		
+		M += 6*VolC(triangles.at(c).at(0),triangles.at(c).at(1),triangles.at(c).at(2))*S_ijk;
+	}
+	
+	M*= 1/(n+3);
 	
 	/* If is_scaling_invariant, divide final moment M by volume^(1+s/3) */
 
