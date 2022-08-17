@@ -5,7 +5,7 @@
 #include <string>
 #include <fstream>
 
-#include "SimpleTriangulationFun.hpp"
+#include "SimpleTriangulationClass.hpp"
 
 
 namespace SimpleTriangulation{
@@ -86,13 +86,13 @@ namespace SimpleTriangulation{
 				
 				normal = exterior(subtract(vertices.at(2),vertices.at(0)),subtract(vertices.at(1),vertices.at(0)));
 				
-				file << "facet normal " << normal.at(0) << " " << normal.at(1) << " " << normal.at(2) << std::endl;
-				file << "outer loop" << std::endl;
+				file << "	facet normal " << normal.at(0) << " " << normal.at(1) << " " << normal.at(2) << std::endl;
+				file << "		outer loop" << std::endl;
 					for (int j = 0; j < 3; j++){
-						file << "vertex " << vertices.at(j).at(0) << " " << vertices.at(j).at(1) << " " << vertices.at(j).at(2) << std::endl;
+						file << "			vertex " << vertices.at(j).at(0) << " " << vertices.at(j).at(1) << " " << vertices.at(j).at(2) << std::endl;
 					}
-				file << "endloop" << std::endl;
-				file << "endfacet" << std::endl;
+				file << "		endloop" << std::endl;
+				file << "	endfacet" << std::endl;
 			}
 			file << "endsolid";
 			file.close();	
@@ -110,6 +110,8 @@ namespace SimpleTriangulation{
 				is divided into two triangles by joining opposite vertices. 
 				
 				Conclusively, given N, a triangulation of X \times Y into 2*ceil(sqrt(N/2))^2 triangles is produced
+			
+			Note: The output triangulation is oriented
 			
 			Input:
 			
@@ -172,28 +174,28 @@ namespace SimpleTriangulation{
 				
 				/* lower right triangle */
 				
-				faces.at(count).at(0) = i*(M+1) + j;// lower left vertex
+				faces.at(count).at(2) = i*(M+1) + j;// lower left vertex
 				faces.at(count).at(1) = i*(M+1) + j + 1;// lower right vertex
-				faces.at(count).at(2) = (i+1)*(M+1) + j + 1;// upper right vertex
+				faces.at(count).at(0) = (i+1)*(M+1) + j + 1;// upper right vertex
 				
 				faces.at(count).at(4) = count + 1;// oppposite triangle to low right corner is the other half of the subrectangle
 				
 				// Determining neighbours (see Triangulation class definition)
-				if (i == 0 && j ==0) {// bottom left corner of XY
-					faces.at(count).at(3) = right_upper_left;
-					faces.at(count).at(5) = count;// Triang. class convention (points to itself)
+				if (i == 0 && j != (M-1)) {// bottom side but not right corner of XY
+					faces.at(count).at(5) = right_upper_left;
+					faces.at(count).at(3) = count;// Triang. class convention (points to itself)
 				}
 				else if (i == 0 && j == (M-1)){// bottom right corner of XY
-					faces.at(count).at(3) = count;
 					faces.at(count).at(5) = count;
+					faces.at(count).at(3) = count;
 				}
 				else if (i == (M-1) && j == (M-1)){// upper right corner of XY
-					faces.at(count).at(3) = count;
-					faces.at(count).at(5) = down_upper_left;
+					faces.at(count).at(5) = count;
+					faces.at(count).at(3) = down_upper_left;
 				}
 				else{// has subrectangles to the right and down
-					faces.at(count).at(3) = right_upper_left;
-					faces.at(count).at(5) = down_upper_left;
+					faces.at(count).at(5) = right_upper_left;
+					faces.at(count).at(3) = down_upper_left;
 				}
 				
 				count++;
@@ -215,7 +217,7 @@ namespace SimpleTriangulation{
 					faces.at(count).at(3) = count;
 					faces.at(count).at(5) = count;
 				}
-				else if (i == (M-1) && j == (M-1)){// upper right corner of XY
+				else if (i == (M-1)){// upper side but not left corner of XY
 					faces.at(count).at(3) = count;
 					faces.at(count).at(5) = left_lower_right;
 				}

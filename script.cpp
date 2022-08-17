@@ -13,11 +13,14 @@
 #include "src/SSV.hpp"
 #include "util/WriteToFile.hpp"
 
+#include "src/Wigley_Modeler.hpp"
+#include "src/GMGSA.hpp"
+
 using namespace SimpleTriangulation;
 
 int main() {
-	
-	int test = 9;
+
+	int test = 11;
 	if (test == 1){
 		// DPS test
 			
@@ -26,6 +29,36 @@ int main() {
 		std::vector<std::vector<double>> S = DPS(X,std::vector<std::vector<double>>(),20,1,5,1);
 			
 		WriteToFile(S,"samples.dat");	
+	}
+	else if (test == 12){
+	}
+	else if (test == 11){
+		WigleyModeler model(100,30,10);
+		int N_triangle = 1000;
+		std::vector<std::vector<std::vector<double>>> triangles = model.triangulate(N_triangle,"Wigley" + std::to_string(N_triangle) +".stl","Wigley");
+	
+		double V = MomentSthOrder(triangles,0,0,0,0,false,false);
+		double Cx = MomentSthOrder(triangles,1,0,0,1,false,false)/V;
+		double Cy =	MomentSthOrder(triangles,0,1,0,1,false,false)/V;
+		double Cz = MomentSthOrder(triangles,0,0,1,1,false,false)/V;
+		
+		std::cout << "Volume is: "<< V <<std::endl;
+		std::cout << "Centoid is at: ( "<<Cx<<" , "<<Cy<<" , "<<Cz<<" )"<<std::endl;
+	}
+	else if (test == 10){
+		std::vector<double> A {1,2,3,4,5,6,7};
+		std::vector<double> a = A;
+		a.erase(a.begin()+2);
+		
+		std::cout << "A: \n";
+		for (int i = 0; i< A.size(); i++){
+			std::cout << A.at(i) << std::endl;
+		}
+		
+		std::cout << "a: \n";
+		for (int i = 0; i< a.size(); i++){
+			std::cout << a.at(i) << std::endl;
+		}
 	}
 	else if (test == 9){
 		int order = 4;

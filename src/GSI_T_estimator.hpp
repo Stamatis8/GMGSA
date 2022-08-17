@@ -42,7 +42,7 @@ double GSI_T_estimator(std::vector<std::vector<double>> Y, std::vector<std::vect
 	int N = Y.size();
 	int k = Y.at(0).size();
 	
-	for (int l = 1; j < k; l++){
+	for (int l = 1; l < k; l++){
 		/* A,B,C */
 		
 		A = 0;

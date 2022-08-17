@@ -131,7 +131,7 @@ namespace SimpleTriangulation{
 				
 				for (int f = 0; f < list.size(); f++){// check all faces in list
 				
-					current_face = list.at(f);// index of current face is this->faces
+					current_face = list.at(f);// index of current face in this->faces
 					processed.push_back(current_face);
 					
 					for (int neighbour = 3; neighbour < 6; neighbour++){
@@ -165,9 +165,9 @@ namespace SimpleTriangulation{
 							
 							next_list.push_back(this->faces.at(current_face).at(neighbour));
 						}
-					}
+						
+					}// neighbours
 					
-					processed.push_back(current_face);
 				}// checking list
 				
 				list = next_list;
