@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <string>
 
 #include "src/DPS.hpp"
 #include "src/SimpleTriangulationClass.hpp"
@@ -8,6 +9,7 @@
 #include "src/MomentSthOrder.hpp"
 #include "src/NchooseK_cache.hpp"
 #include "src/J_cache.hpp"
+#include "src/stl2vec.hpp"
 
 #include "util/WriteToFile.hpp"
 
@@ -15,7 +17,7 @@ using namespace SimpleTriangulation;
 
 int main() {
 	
-	int test = 4;
+	int test = 8;
 	if (test == 1){
 		// DPS test
 			
@@ -24,6 +26,18 @@ int main() {
 		std::vector<std::vector<double>> S = DPS(X,std::vector<std::vector<double>>(),20,1,5,1);
 			
 		WriteToFile(S,"samples.dat");	
+	}
+	else if (test == 8){
+	
+		std::string filename = "botton1.stl";
+	
+		double V = MomentSthOrder(filename,0,0,0,0,false,false);
+		double Cx = MomentSthOrder(filename,1,0,0,1,false,false)/V;
+		double Cy =	MomentSthOrder(filename,0,1,0,1,false,false)/V;
+		double Cz = MomentSthOrder(filename,0,0,1,1,false,false)/V;
+		
+		std::cout << "Volume of .stl file is: "<< V <<std::endl;
+		std::cout << "Centoid is at: ( "<<Cx<<" , "<<Cy<<" , "<<Cz<<" )"<<std::endl;
 	}
 	else if (test == 2){
 		// SimpleTriangulation test
@@ -172,9 +186,6 @@ int main() {
 						}
 					};											  
 		*/
-		
-			
-		std::cout<< "With Old Moment Function: " << old_MomentSthOrder(triangles,0,0,0,false)<<std::endl;
 		
 		std::cout<< "With New Moment Function: " << MomentSthOrder(triangles,0,0,0,0,false,false)<<std::endl;
 	}

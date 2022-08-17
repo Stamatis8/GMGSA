@@ -4,12 +4,24 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
+#include <vector>
 
 #include "NchooseK_cache.hpp"
 #include "J_cache.hpp"
+#include "stl2vec.hpp"
 
 double MomentSthOrder(
 	std::vector<std::vector<std::vector<double>>> triangles,
+	int i,
+	int j,
+	int k,
+	int degree,
+	bool is_translation_invariant,
+	bool is_scaling_invariant
+	);
+
+double MomentSthOrder(
+	std::string filename,
 	int i,
 	int j,
 	int k,
@@ -80,7 +92,7 @@ double MomentSthOrder(
 	else if ((i+j+k)==1 && is_translation_invariant){
 		// if centered at volume centroid, then by definition 1st order moments are equal to zero
 		
-		return 0;
+		//return 0;
 	}
 	
 	/* Initializing variables */
@@ -128,11 +140,11 @@ double MomentSthOrder(
 	
 	if (is_translation_invariant){
 	
-		V = MomentSthOrder(triangles,0,0,0,false,false);
+		V = MomentSthOrder(triangles,0,0,0,0,false,false);
 		
-		double Cx = MomentSthOrder(triangles,1,0,0,false,false)/V;// centroid x
-		double Cy = MomentSthOrder(triangles,0,1,0,false,false)/V;// centroid y
-		double Cz = MomentSthOrder(triangles,0,0,1,false,false)/V;// centroid z
+		double Cx = MomentSthOrder(triangles,1,0,0,1,false,false)/V;// centroid x
+		double Cy = MomentSthOrder(triangles,0,1,0,1,false,false)/V;// centroid y
+		double Cz = MomentSthOrder(triangles,0,0,1,1,false,false)/V;// centroid z
 		
 		for (int i = 0; i < T; i++){
 			//First Vertex
@@ -140,12 +152,12 @@ double MomentSthOrder(
 			triangles.at(i).at(0).at(1) -= Cy;
 			triangles.at(i).at(0).at(2) -= Cz;
 			
-			//Third Vertex
+			//Second Vertex
 			triangles.at(i).at(1).at(0) -= Cx;
 			triangles.at(i).at(1).at(1) -= Cy;
 			triangles.at(i).at(1).at(2) -= Cz;
 			
-			//Second Vertex
+			//Third Vertex
 			triangles.at(i).at(2).at(0) -= Cx;
 			triangles.at(i).at(2).at(1) -= Cy;
 			triangles.at(i).at(2).at(2) -= Cz;
@@ -244,9 +256,10 @@ double MomentSthOrder(
 								S_ijk_r += NK.get(i,iplus)*NK.get(j,jplus)*NK.get(k,kplus)
 										 * NK.get(iplus,i2)*NK.get(jplus,j2)*NK.get(kplus,k2)
 										 * J.get(i2+j2+k2,r-i2-j2-k2)
-										 * std::pow(p_bar.at(c).at(0),i1)*std::pow(p_bar.at(c).at(1),j1)*std::pow(p_bar.at(c).at(2),i3)
-										 * std::pow(u_hat.at(c).at(0),i2)*std::pow(u_hat.at(c).at(1),j2)*std::pow(u_hat.at(c).at(2),j3)
+										 * std::pow(p_bar.at(c).at(0),i1)*std::pow(p_bar.at(c).at(1),j1)*std::pow(p_bar.at(c).at(2),k1)
+										 * std::pow(u_hat.at(c).at(0),i2)*std::pow(u_hat.at(c).at(1),j2)*std::pow(u_hat.at(c).at(2),k2)
 										 * std::pow(v_hat.at(c).at(0),i3)*std::pow(v_hat.at(c).at(1),j3)*std::pow(v_hat.at(c).at(2),k3);
+									
 							}//k2
 						}//j2
 					}//i2
@@ -261,7 +274,7 @@ double MomentSthOrder(
 	
 	M /= (n+3);
 	
-	/* If is_scaling_invariant, divide final moment M by volume^(1+s/3) */
+	/* If is_scaling_invariant, divide final moment M by volume^(1+n/3) */
 	
 	if (is_scaling_invariant){
 		if(!is_translation_invariant){
@@ -275,6 +288,28 @@ double MomentSthOrder(
 	
 	return M;
 }
+
+double MomentSthOrder(
+	std::string filename,
+	int i,
+	int j,
+	int k,
+	int degree,
+	bool is_translation_invariant = false,
+	bool is_scaling_invariant = false
+	){
+	/*
+		Description: Same as MomentSthOrder, but triangles are imported from stl file
+	*/
+	
+	std::vector<std::vector<std::vector<double>>> T = stl2vec(filename);
+	
+	return MomentSthOrder(T,i,j,k,degree,is_translation_invariant,is_scaling_invariant);
+}
+
+#endif // MOMENTSTHORDER_HPP
+
+/*
 
 double DEBUG_TEMP(
 		double A, 
@@ -357,7 +392,7 @@ double old_MomentSthOrder(
 				the s = (p+q+r) moment of G
 				
 		Note: The method used in this implementation is the analytical evaluation of the integral of f (see appendix of [1]) over each triangle.
-	*/
+	*\/
 	
 	double M = 0;
 	double I_t = 0;// The integral of f (see appendix of [1]) over the triangle t
@@ -379,7 +414,7 @@ double old_MomentSthOrder(
 	
 	for (int t = 0; t < triangles.size(); t++){
 		
-		/* Evaluating A through I, a, b, c, n */
+		/* Evaluating A through I, a, b, c, n *\/
 		
 		a.at(0) = triangles.at(t).at(1).at(0) - triangles.at(t).at(0).at(0);
 		a.at(1) = triangles.at(t).at(1).at(1) - triangles.at(t).at(0).at(1);
@@ -420,7 +455,7 @@ double old_MomentSthOrder(
 		if (is_invariant){//amending A through I (translational invariance)
 			volume = old_MomentSthOrder(triangles,0,0,0,false);
 			
-			/***** Todo: Handle volume == 0 *****/
+			/***** Todo: Handle volume == 0 *****\/
 			
 			centroid.at(0) = old_MomentSthOrder(triangles,1,0,0,false)/volume;
 			centroid.at(1) = old_MomentSthOrder(triangles,1,0,0,false)/volume;
@@ -431,9 +466,9 @@ double old_MomentSthOrder(
 			I -= centroid.at(2);
 		}		
 		
-		/* Evaluating I_t */
+		/* Evaluating I_t *\/
 		
-		/* DEBUG: Evaluating I_t another way */
+		/* DEBUG: Evaluating I_t another way *\/
 		
 		double term1 = 0;
 		double term2 = 0;
@@ -462,5 +497,4 @@ double old_MomentSthOrder(
 	return M;
 
 }// MomentSthOrder()
-
-#endif // MOMENTSTHORDER_HPP
+*/
