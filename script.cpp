@@ -10,14 +10,14 @@
 #include "src/NchooseK_cache.hpp"
 #include "src/J_cache.hpp"
 #include "src/stl2vec.hpp"
-
+#include "src/SSV.hpp"
 #include "util/WriteToFile.hpp"
 
 using namespace SimpleTriangulation;
 
 int main() {
 	
-	int test = 8;
+	int test = 9;
 	if (test == 1){
 		// DPS test
 			
@@ -26,6 +26,16 @@ int main() {
 		std::vector<std::vector<double>> S = DPS(X,std::vector<std::vector<double>>(),20,1,5,1);
 			
 		WriteToFile(S,"samples.dat");	
+	}
+	else if (test == 9){
+		int order = 4;
+		std::string filename = "botton1.stl";
+		std::vector<double> V = SSV(filename,order);
+		
+		std::cout << "Order " << order << " SSV of " << filename << "is: " << std::endl;
+		for (int i = 0; i < V.size(); i++){
+			std::cout << V.at(i) << std::endl;
+		}
 	}
 	else if (test == 8){
 	

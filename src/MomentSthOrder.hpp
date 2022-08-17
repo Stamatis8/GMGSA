@@ -302,9 +302,7 @@ double MomentSthOrder(
 		Description: Same as MomentSthOrder, but triangles are imported from stl file
 	*/
 	
-	std::vector<std::vector<std::vector<double>>> T = stl2vec(filename);
-	
-	return MomentSthOrder(T,i,j,k,degree,is_translation_invariant,is_scaling_invariant);
+	return MomentSthOrder(stl2vec(filename),i,j,k,degree,is_translation_invariant,is_scaling_invariant);
 }
 
 #endif // MOMENTSTHORDER_HPP
