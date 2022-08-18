@@ -62,7 +62,7 @@ Unfortunately, no organized documentation document exists yet. However each obje
 The `GMGSA()` function has the following prototype:
 
 	template<class PM>
-	std::vector<double> GMGSA(PM modeler, int N ,int N_triangles, int order);
+	std::vector<double> GMGSA(PM modeler ,int N ,int N_triangles, int order);
 	
 `N` is the number of random samples to generate, `N_triangles` the number of triangles in each mesh and `order`, the order of the SSV to use. Now, the `modeler` variable is of type `PM`. The requirements for `PM` are listed in `src/GMGSA.hpp` as follows:
 	
