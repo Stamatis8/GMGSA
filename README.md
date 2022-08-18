@@ -15,7 +15,7 @@
 
 # Usage
 
-All files that are needed to use this library are located in `src`. Move them at some `path` where you have access and then simply `#include "path/GMGSA.hpp"` at the file you want to use this package from (ie copy-paste all files from `src` in your project folder and then `#include "GMGSA.hpp"`).
+All files that are needed to use this library are located in `src`. Move them at some `path` where the compiler has access and then simply `#include "path/GMGSA.hpp"` at the file you want to use this package from (ie copy-paste all files from `src` in your project folder and then `#include "GMGSA.hpp"`).
 
 # Overview
 
