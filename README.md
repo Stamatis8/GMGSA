@@ -59,7 +59,7 @@ Unfortunately, no organized documentation document exists yet. However each obje
 
 ## Parametric modeler requirements
 
-The `GMGSA()` function has the following protoype:
+The `GMGSA()` function has the following prototype:
 
 	template<class PM>
 	std::vector<double> GMGSA(PM modeler, int N ,int N_triangles, int order);
