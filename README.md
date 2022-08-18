@@ -2,7 +2,7 @@
 
 - C++ header library to preform geometric-moment based GSA as in [1]
 - This library attaches to an existant parametric modeler, for which the requirements are listed below
-- The parametric modeller is used as `class template` with minimal requirements, which means that a wrapper around already existing modelers is easy to build
+- The parametric modeler is used as `class template` with minimal requirements, which means that the wrapper around already existing modelers should be is easy to build
 
 # Dependancies
 
