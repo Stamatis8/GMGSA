@@ -55,7 +55,7 @@ The modifed Wigley hull-form is well-known and widely used for experimental and 
 
 # Documentation
 
-Unfortunately, no organized documentation document exists yet. However each object is documented thoroughly at its definition. What follows is a listing of the requirements for the prametric modeler class
+Unfortunately, no organized documentation document exists yet. However each object is documented thoroughly at its definition. What follows is a listing of the requirements for the parametric modeler class
 
 ## Parametric modeler requirements
 
