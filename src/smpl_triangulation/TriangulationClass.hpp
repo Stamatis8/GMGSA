@@ -1,10 +1,10 @@
-#ifndef SIMPLETRIANGULATION_CLASS_HPP
-#define SIMPLETRIANGULATION_CLASS_HPP
+#ifndef TRIANGULATION_CLASS_HPP
+#define TRIANGULATION_CLASS_HPP
 
 #include <vector>
 #include <cmath>
 
-namespace SimpleTriangulation{
+namespace smpl_triangulation{
 	
 	template<class vertex>
 	class Triangulation
@@ -269,4 +269,4 @@ namespace SimpleTriangulation{
 	
 }// namespace
 
-#endif// SIMPLETRIANGULATION_CLASS_HPP
+#endif// TRIANGULATION_CLASS_HPP

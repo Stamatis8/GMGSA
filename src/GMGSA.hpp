@@ -5,7 +5,7 @@
 
 #include "GSI_T_estimator.hpp"
 #include "DPS.hpp"
-#include "SSV.hpp"
+#include "geom_moments/geom_moments.hpp"
 
 template<class PM>
 std::vector<double> GMGSA(PM modeler, int N ,int N_triangles, int order);

@@ -3,24 +3,20 @@
 #include <cmath>
 #include <string>
 
-#include "src/DPS.hpp"
-#include "src/SimpleTriangulationClass.hpp"
-#include "src/SimpleTriangulationFun.hpp"
-#include "src/MomentSthOrder.hpp"
-#include "src/NchooseK_cache.hpp"
-#include "src/J_cache.hpp"
-#include "src/stl2vec.hpp"
-#include "src/SSV.hpp"
+#include "src/smpl_triangulation/smpl_triangulation.hpp"
+#include "src/geom_moments/geom_moments.hpp"
+#include "src/geom_moments/stl_util/stl2vec.hpp"
 #include "util/WriteToFile.hpp"
 
+#include "src/DPS.hpp"
 #include "src/Wigley_Modeler.hpp"
 #include "src/GMGSA.hpp"
 
-using namespace SimpleTriangulation;
+using namespace smpl_triangulation;
 
 int main() {
 
-	int test = 11;
+	int test = 12;
 	if (test == 1){
 		// DPS test
 			
@@ -31,6 +27,16 @@ int main() {
 		WriteToFile(S,"samples.dat");	
 	}
 	else if (test == 12){
+	WigleyModeler model(100,40,10);
+	int N = 100;
+	int N_t = 50;
+	int order = 0;
+	std::vector<double> SI = GMGSA<WigleyModeler>(model,N,N_t,order);
+	
+	std::cout << "Order " << order << " SI: " << std::endl;
+		for (int i = 0; i < SI.size(); i++){
+			std::cout << SI.at(i) << std::endl;
+		}
 	}
 	else if (test == 11){
 		WigleyModeler model(100,30,10);

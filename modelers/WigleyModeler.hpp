@@ -5,7 +5,7 @@
 #include <cmath>
 #include <string>
 
-#include "SimpleTriangulationFun.hpp"
+#include "../src/smpl_triangulation/smpl_triangulation.hpp"
 
 class WigleyModeler{
 	/*
@@ -64,7 +64,7 @@ public:
 		
 		/* Triangulate domain */
 		
-		SimpleTriangulation::Triangulation<std::vector<double>> T = SimpleTriangulation::PlanarTriangulation(std::vector<double> {-1,1},std::vector<double> {-1,1}, N);
+		smpl_triangulation::Triangulation<std::vector<double>> T = smpl_triangulation::PlanarTriangulation(std::vector<double> {-1,1},std::vector<double> {-1,1}, N);
 	
 		/* mapping 2D triangulation on Wigley hull */
 		
@@ -73,7 +73,7 @@ public:
 		}
 		
 		if (filename != ""){// make STL file
-			SimpleTriangulation::make_stl(T,filename,solidname);
+			smpl_triangulation::make_stl(T,filename,solidname);
 		}
 		
 		return T;// cast of T to vec<vec<vec>>> format

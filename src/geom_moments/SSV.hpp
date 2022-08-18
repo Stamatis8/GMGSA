@@ -5,7 +5,7 @@
 #include <string>
 
 #include "MomentSthOrder.hpp"
-#include "stl2vec.hpp"
+#include "stl_util/stl2vec.hpp"
 
 std::vector<double> SSV(
 	std::vector<std::vector<std::vector<double>>> triangles, int order);
