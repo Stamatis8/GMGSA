@@ -2,7 +2,7 @@
 
 - C++ header library to preform geometric-moment based GSA as in [1]
 - This library attaches to an existant parametric modeler, for which the requirements are listed below
-- The parametric modeller is used as `class template` with minimal requirements, which means that a wrapper around already existing modelers is easy to build
+- The parametric modeler is used as `class template` with minimal requirements, which means that the wrapper around already existing modelers should be is easy to build
 
 # Dependancies
 
@@ -15,7 +15,7 @@
 
 # Usage
 
-All files that are needed to use this library are located in `src`. Move them at some `path` where you have access and then simply `#include "path/GMGSA.hpp"` at the file you want to use this package from (ie copy-paste all files from `src` in your project folder and then `#include "GMGSA.hpp"`).
+All files that are needed to use this library are located in `src`. Move them at some `path` where the compiler has access and then simply `#include "path/GMGSA.hpp"` at the file you want to use this package from (ie copy-paste all files from `src` in your project folder and then `#include "GMGSA.hpp"`).
 
 # Overview
 
@@ -55,14 +55,14 @@ The modifed Wigley hull-form is well-known and widely used for experimental and 
 
 # Documentation
 
-Unfortunately, no organized documentation document exists yet. However each object is documented thoroughly at its definition. What follows is a listing of the requirements for the prametric modeler class
+Unfortunately, no organized documentation document exists yet. However each object is documented thoroughly at its definition. What follows is a listing of the requirements for the parametric modeler class
 
 ## Parametric modeler requirements
 
-The `GMGSA()` function has the following protoype:
+The `GMGSA()` function has the following prototype:
 
 	template<class PM>
-	std::vector<double> GMGSA(PM modeler, int N ,int N_triangles, int order);
+	std::vector<double> GMGSA(PM modeler ,int N ,int N_triangles ,int order);
 	
 `N` is the number of random samples to generate, `N_triangles` the number of triangles in each mesh and `order`, the order of the SSV to use. Now, the `modeler` variable is of type `PM`. The requirements for `PM` are listed in `src/GMGSA.hpp` as follows:
 	
