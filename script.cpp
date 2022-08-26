@@ -5,45 +5,39 @@
 #include "src/SSV.hpp"
 #include "modelers/WigleyModeler.hpp"
 #include "modelers/stdModelerMoments.hpp"
+#include "modelers/WigleyAnalyticMoments.hpp"
 
 int main() {
 	
-	WigleyModeler Wigley {100,30,19};
+	WigleyModeler Wigley {{80,120},{25,35},{17,19}};
 	
-	int order = 5;
+	int order = 2;
+	int order_analysis = 1;
+	int N_samples = 10;
 	
-	std::cout << "With approximate Wigley: " << std::endl;
+	stdModelerMoments<WigleyModeler> WigleyApprox {Wigley,5000};
 	
-	stdModelerMoments<WigleyModeler> WigleyApprox {Wigley,1800};
+	WigleyAnalyticMoments WigleyAna {Wigley};
 	
-	WigleyApprox.set_design(std::vector<double> {0.5,0.3,0.2});
-	WigleyApprox.triangulate("Wigley.stl");
+	std::cout << WigleyAna.moment(2,2,0) << std::endl;
+	std::cout << WigleyApprox.moment(2,2,0) << std::endl;
+	return 0;
+	//WigleyApprox.triangulate("Wigley.stl");
 	
-	std::cout << "ssv:"<<std::endl;
 	std::vector<double> ssv = SSV(WigleyApprox,order);
-	for(int i = 0; i < ssv.size();i++){
-		std::cout << ssv.at(i) << std::endl;
+	
+	std::vector<double> SI = GMGSA(WigleyApprox,N_samples,order_analysis);
+	
+	std::vector<double> ssv_an = SSV(WigleyAna,order);
+	
+	std::vector<double> SI_an = GMGSA(WigleyAna,N_samples,order_analysis);
+	
+	std::cout << "SSV length difference: "<< std::endl;
+	double norm=0;
+	for(int i = 0; i < ssv_an.size();i++){
+		norm += std::pow(std::abs(ssv_an.at(i)-ssv.at(i)),2);
 	}
-	
-	std::vector<double> SI = GMGSA(WigleyApprox,10,1);
-	
-	std::cout << "si:"<<std::endl;
-	for(int i = 0; i < SI.size(); i++){
-		std::cout << SI.at(i) << std::endl;
-	}
-	
-	/*
-	std::cout << "Volume is: " << WigleyApprox.moment(0,0,0) << std::endl;
-	
-	std::cout << "Centeroid is: ( "<< WigleyApprox.moment(1,0,0)/WigleyApprox.moment(0,0,0) 
-		<< " , "<<
-		WigleyApprox.moment(0,1,0)/WigleyApprox.moment(0,0,0) 
-		<< " , "<<
-		WigleyApprox.moment(0,0,1)/WigleyApprox.moment(0,0,0) 
-		<< " )"<<std::endl;
-	*/
-	
-	std::cout << "With analytic Wigley: " << std::endl;
-
+	norm = std::sqrt(norm);
+	std::cout << norm << std::endl;
 	return 0;
 }

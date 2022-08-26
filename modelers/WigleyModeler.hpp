@@ -27,16 +27,26 @@ public:
 
 	/* Constructor */
 	
-	WigleyModeler(double L_in, double B_in, double d_in){
-		this->L = L_in;
-		this->B = B_in;
-		this->d = d_in;
+	WigleyModeler(
+		std::vector<double> L_range,
+		std::vector<double> B_range,
+		std::vector<double> d_range,
+		double c1_in = 0,
+		double c2_in = 0,
+		double c3_in = 0){
 		
-		// c1,c2,c3 domains
-		this->design_space_attribute = {{0,1},{0,1},{0,1}};
+		this->c1 = c1_in;
+		this->c2 = c2_in;
+		this->c3 = c3_in;
+		
+		// L,B,D domains
+		this->design_space_attribute = {L_range,B_range,d_range};
 	
-		// original wigley hull
-		this->design = {0,0,0};
+		// setting some initial design
+		this->design = {
+			(L_range.at(0)+L_range.at(1))/2,
+			(B_range.at(0)+B_range.at(1))/2,
+			(d_range.at(0)+d_range.at(1))/2};
 	}
 
 	/* Evaluate */
@@ -62,10 +72,10 @@ public:
 		
 		std::vector<double> point(3,0);
 		
-		point.at(0) = this->L*xi/2;
+		point.at(0) = this->design.at(0)*xi/2;
 		
-		double h = (1-std::pow(zeta,2))*(1-std::pow(xi,2))*(1 + this->design.at(0)*std::pow(xi,2) + this->design.at(1)*std::pow(xi,4))
-				+ this->design.at(2)*std::pow(zeta,2)*(1-std::pow(zeta,8))*std::pow(1-std::pow(xi,2),4);
+		double h = (1-std::pow(zeta,2))*(1-std::pow(xi,2))*(1 + this->c1*std::pow(xi,2) + this->c2*std::pow(xi,4))
+				+ this->c3*std::pow(zeta,2)*(1-std::pow(zeta,8))*std::pow(1-std::pow(xi,2),4);
 		
 		if (zeta < 0){// reflect evaluate(xi,-zeta)
 			zeta = -zeta;
@@ -75,9 +85,9 @@ public:
 			h = 0;
 		}
 		
-		point.at(1) = this->B*h/2;
+		point.at(1) = this->design.at(1)*h/2;
 		
-		point.at(2) = zeta*this->d;
+		point.at(2) = zeta*this->design.at(2);
 		
 		return point;
 	}
@@ -100,19 +110,21 @@ public:
 		return std::vector<std::vector<double>> {{-1,1},{-1,1}};
 	}
 
-private:
+
+
+protected:
 
 	/* Attributes */
 
 	std::vector<std::vector<double>> design_space_attribute;// ith parameter \in [design_space.at(i).at(0), design_space.at(i).at(1)]
-
+	
 	std::vector<double> design;// current_design
 	
-	double L;// length
+	double c1;// length
 	
-	double B;// breadth
+	double c2;// breadth
 	
-	double d;// depth
+	double c3;// depth
 	
 };// WigleyModeler
 
