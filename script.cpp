@@ -9,18 +9,18 @@
 
 int main() {
 	
-	WigleyModeler Wigley {{80,120},{25,35},{17,19}};
+	WigleyModeler Wigley {{80,120},{25,35},{17,19},0.73,0.13,0.45};
 	
 	int order = 2;
 	int order_analysis = 1;
 	int N_samples = 10;
 	
-	stdModelerMoments<WigleyModeler> WigleyApprox {Wigley,5000};
+	stdModelerMoments<WigleyModeler> WigleyApprox {Wigley,10};
 	
 	WigleyAnalyticMoments WigleyAna {Wigley};
 	
-	std::cout << WigleyAna.moment(2,2,0) << std::endl;
-	std::cout << WigleyApprox.moment(2,2,0) << std::endl;
+	std::cout << WigleyAna.moment(0,6,0) << std::endl;
+	//std::cout << WigleyApprox.moment(6,4,7) << std::endl;
 	return 0;
 	//WigleyApprox.triangulate("Wigley.stl");
 	

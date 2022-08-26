@@ -86,7 +86,8 @@ public:
 			*std::pow(L/2,p+1)
 			*std::pow(B/2,q+1)
 			*std::pow(d,r+1)
-			*sum;
+			*sum
+			/(q+1);
 			
 		if (is_scaling_invariant){
 			if (!is_translation_invariant){// calculate volume if it has not been calculated already
