@@ -5,13 +5,14 @@
 
 #include "GSI_T_estimator.hpp"
 #include "DPS.hpp"
+#include "SSV.hpp"
 #include "geom_moments/geom_moments.hpp"
 
-template<class PM>
-std::vector<double> GMGSA(PM modeler, int N ,int N_triangles, int order);
+template<typename PM>
+std::vector<double> GMGSA(PM modeler, int N, int order);
 
-template<class PM>
-std::vector<double> GMGSA(PM modeler,int N, int N_triangles, int order){
+template<typename PM>
+std::vector<double> GMGSA(PM modeler,int N, int order){
 	/*
 		Description: Performs Geometric Moment-dependent Global Sensitivity Analysis on modeler, according to
 		
@@ -34,13 +35,11 @@ std::vector<double> GMGSA(PM modeler,int N, int N_triangles, int order){
 				- design contains a set of parameters for the modeler
 				- the modeler class must save this design until it is changed again
 				
-			- modeler.triangulate(N_triangles)
-				- returns a triangulation of the currently set design in *approximately* N_triangles
-				- the triangulation is returned in std::vector<std::vector<std::vector<double>>> triang format
-				- the triangulation must be oriented
-				- triang.at(i) is the ith triangle
-				- triang.at(i).at(j) is the jth vertex of the ith triangle ( 0 <= j <= 2 )
-				- triang.at(i).at(j).at(k) is the kth coordinate of the jth vertex of the ith triangle ( 0 <= k <= 2 )
+			( PM must be accepted by SSV() ):
+			- modeler.moment(int p, int q, int r, bool is_translation_invariant, bool is_scaling_invariant)
+				- Calculates the s = p + q + r order geometric moment of the current design in modeler.
+				- is_translation_invariant  == true calculates the translation invariant of said moment
+				- is_scaling_invariant == true calculates scaling invariant of said moment
 		
 		Input:
 			- PM modeler
@@ -49,10 +48,6 @@ std::vector<double> GMGSA(PM modeler,int N, int N_triangles, int order){
 			- int N
 				- N > 0
 				- number of samples to estimate the generalized sensitivity indices with	
-			
-			 - int N_triangles
-				- N_triangles > 2
-				- *indicator* for number of triangles to estimate the shape signature vectors with
 			
 			 - int order
 				- order of shape signature vector
@@ -86,9 +81,7 @@ std::vector<double> GMGSA(PM modeler,int N, int N_triangles, int order){
 	for (int design = 0; design < X.size(); design++){
 		modeler.set_design(X.at(design));// choose design
 		
-		triangulation = modeler.triangulate(N_triangles);// triangulate design
-		
-		Y.at(design) = SSV(triangulation,order);// calculate SSV for design
+		Y.at(design) = SSV(modeler,order);// calculate SSV for design
 	}
 	
 	/* Initialize result SI and start calculation */
@@ -123,10 +116,8 @@ std::vector<double> GMGSA(PM modeler,int N, int N_triangles, int order){
 		
 		for (int design = 0; design < X_prime.size(); design++){
 			modeler.set_design(X_prime.at(design));// choose design
-		
-			triangulation = modeler.triangulate(N_triangles);// triangulate design
-		
-			Y_prime.at(design) = SSV(triangulation,order);// calculate SSV for design
+			
+			Y_prime.at(design) = SSV(modeler,order);// calculate SSV for design
 		}
 		
 		/* Using GSI_T_estimator, calculate SI.at(parameter) */

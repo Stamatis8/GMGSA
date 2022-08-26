@@ -36,13 +36,15 @@ Triangulation<std::vector<double>> PlanarTriangulation(
 					Second side of rectangle: [Y.at(0), Y.at(1)]
 				- int N
 					N > 0
-					A triangulation consisting of 2*ceil(sqrt(N/2))^2 rectangles is produced
+					
 			
 			Output:
 			
 				- std::vector<std::vector<std::vector<double>>> triangles
 					triangles.at(i) is the ith triangle consisting of vertices triangles.at(i).at(0), triangles.at(i).at(1),
 					triangles.at(i).at(2)
+					
+					A triangulation consisting of 2*ceil(sqrt(N/2))^2 rectangles is produced
 			
 		*/
 		

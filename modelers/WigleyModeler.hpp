@@ -39,88 +39,26 @@ public:
 		this->design = {0,0,0};
 	}
 
-	/* Triangulate */
-
-	std::vector<std::vector<std::vector<double>>> triangulate(int N,std::string filename = "", std::string solidname = ""){
-		/*
-			Description: Construct a triangulation for this->design in approximately N triangles. If filename != "" constructs .stl file
-				filename
-				
-			Input:
-				- int N
-					approximate number of triangles, N >= 2
-				- filename
-					if filename != "", makes filename in STL ASCII format. Else, no STL file is created
-					".stl" ending must be included, ie filename = "myfile.stl"
-					
-				- solidname
-					if STL file is to be constructed, this will be the solid name
-					
-			Output:
-				- std::vector<std::vector<std::vector<double>>> T
-					T.at(i) is the ith triangle with its 3 elements being its three vertices
-						
-		*/
+	/* Evaluate */
 		
-		/* Triangulate domain */
-		
-		smpl_triangulation::Triangulation<std::vector<double>> T = smpl_triangulation::PlanarTriangulation(std::vector<double> {-1,1},std::vector<double> {-1,1}, N);
-	
-		/* mapping 2D triangulation on Wigley hull */
-		
-		for (int vertex = 0; vertex < T.nodes.size(); vertex++){
-			T.nodes.at(vertex) = this->evaluate(T.nodes.at(vertex).at(0),T.nodes.at(vertex).at(1));//domain to hull
-		}
-		
-		if (filename != ""){// make STL file
-			smpl_triangulation::make_stl(T,filename,solidname);
-		}
-		
-		return T;// cast of T to vec<vec<vec>>> format
-	}
-
-	/* Set Design */
-
-	void set_design(std::vector<double> design_in){
-		this->design = design_in;
-	}
-	
-	/* Get Design Space */
-	
-	std::vector<std::vector<double>> design_space(){
-		return this->design_space_attribute;
-	}
-	
-
-private:
-
-	/* Attributes */
-
-	std::vector<std::vector<double>> design_space_attribute;// ith parameter \in [design_space.at(i).at(0), design_space.at(i).at(1)]
-
-	std::vector<double> design;// current_design
-	
-	double L;// length
-	
-	double B;// breadth
-	
-	double d;// depth
-	
-	std::vector<double> evaluate(double xi, double zeta){
+	std::vector<double> evaluate(std::vector<double> args){
 		/*
 			Description: Evaluates the modified wigley hull at xi,zeta for current design
 			
 			Inputs:
-				- double xi
-					-1 <= xi <= 1
-				- double zeta
-					-1 <= zeta <= 1
+				- std::vector<double> args
+					-1 <= args.at(0) <= 1
+					-1 <= args.at(1) <= 1
 			
 			Output:
 				- std::vector<double> point
 					point on wigley hull according to conventions listed up top
 					
 		*/
+		
+		double xi = args.at(0);
+		
+		double zeta = args.at(1);
 		
 		std::vector<double> point(3,0);
 		
@@ -143,6 +81,38 @@ private:
 		
 		return point;
 	}
+
+	/* Set Design */
+
+	void set_design(std::vector<double> design_in){
+		this->design = design_in;
+	}
+	
+	/* Get Design Space */
+	
+	std::vector<std::vector<double>> design_space(){
+		return this->design_space_attribute;
+	}
+	
+	/* Get Domain */
+	
+	std::vector<std::vector<double>> domain(){
+		return std::vector<std::vector<double>> {{-1,1},{-1,1}};
+	}
+
+private:
+
+	/* Attributes */
+
+	std::vector<std::vector<double>> design_space_attribute;// ith parameter \in [design_space.at(i).at(0), design_space.at(i).at(1)]
+
+	std::vector<double> design;// current_design
+	
+	double L;// length
+	
+	double B;// breadth
+	
+	double d;// depth
 	
 };// WigleyModeler
 

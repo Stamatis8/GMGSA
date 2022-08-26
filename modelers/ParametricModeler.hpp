@@ -5,7 +5,7 @@
 
 class ParametricModeler{
 	/*
-		This class is a minimal template to be used in GMGSA.hpp
+		This class is a minimal template. For more details see documentation
 	*/
 
 public:
@@ -15,19 +15,7 @@ public:
 	ParametricModeler(){
 		
 	}
-
-	/* Triangulate */
-
-	std::vector<std::vector<std::vector<double>>> triangulate(int N){
-		/*
-			Description: Construct a triangulation for this->design in approximately N triangles
-		*/
-		
-		std::vector<std::vector<std::vector<double>>> triangulation;
-		
-		return triangulation;
-	}
-
+	
 	/* Set Design */
 
 	void set_design(std::vector<double> design_in){
@@ -40,13 +28,32 @@ public:
 		return this->design_space_attribute;
 	}
 
+	/* Evaluate */
+
+	std::vector<double> evaluate(std::vector<double> args){
+		
+		std::vector<double> point;// evaluated model
+		
+		return point;
+	}
+	
+	/* Get domain */
+	
+	std::vector<std::vector<double>> domain(){
+		/* Evaluate and return domain for current design */
+		
+		std::vector<std::vector<double>> D;// domain for current design
+		
+		return D;
+	}
+
 private:
 
 	/* Attributes */
 
 	std::vector<std::vector<double>> design_space_attribute;// ith parameter \in [design_space.at(i).at(0), design_space.at(i).at(1)]
 
-	std::vector<double> design;// current_design
+	std::vector<double> design;// current design
 	
 }; //ParametricModeler
 

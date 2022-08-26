@@ -4,7 +4,6 @@
 #include "J_cache.hpp"
 #include "MomentSthOrder.hpp"
 #include "NchooseK_cache.hpp"
-#include "SSV.hpp"
 
 #endif // GEOMMOMENTS_HPP
 
