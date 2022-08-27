@@ -3,8 +3,6 @@
 
 #include <vector>
 
-#include "../util/timer.hpp"//DEBUG
-
 #include "GSI_T_estimator.hpp"
 #include "DPS.hpp"
 #include "SSV.hpp"
@@ -65,8 +63,6 @@ std::vector<double> GMGSA(PM modeler,int N, int order){
 	int sub_population_size = 2;// see references in DPS.hpp
 	int max_iterations = 3;// see references in DPS.hpp
 	double omega = 1;// see references in DPS.hpp
-	
-	timer t;t.begin();//DEBUG
 
 	std::vector<std::vector<double>> X = DPS(
 		modeler.design_space(),
@@ -76,8 +72,6 @@ std::vector<double> GMGSA(PM modeler,int N, int order){
 		max_iterations,
 		omega
 	);
-
-	t.display();//DEBUG
 
 	/* Using modeler and SSV calculate shape signature vector array Y */
 	
@@ -95,8 +89,6 @@ std::vector<double> GMGSA(PM modeler,int N, int order){
 	std::vector<double> SI(modeler.design_space().size(),0);// SI.at(i) = ith sensitivity index
 
 	/* Using DPS generate independent samples X_prime for ith parameter */
-		
-	t.begin();//DEBUG
 
 	std::vector<std::vector<double>> X_new = DPS(// Generate X_new with repulsion criterion (see references in DPS.hpp) applied to X
 		modeler.design_space(),
@@ -106,8 +98,6 @@ std::vector<double> GMGSA(PM modeler,int N, int order){
 		max_iterations,
 		omega
 	);
-	
-	t.display();std::cout << std::endl;//DEBUG
 
 	std::vector<std::vector<double>> X_prime = X_new;
 		// For each parameter, X_prime.at(i) will hold said parameter from X and set all others from X_new

@@ -13,7 +13,7 @@ struct timer {
 	}
 
 	void display() {
-		std::cout << std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - this->start_time).count() << "s";
+		std::cout << std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - this->start_time).count();
 	}
 
 private:
