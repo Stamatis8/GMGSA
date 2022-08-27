@@ -2,42 +2,20 @@
 #include <vector>
 
 #include "src/GMGSA.hpp"
-#include "src/SSV.hpp"
 #include "modelers/WigleyModeler.hpp"
-#include "modelers/stdModelerMoments.hpp"
 #include "modelers/WigleyAnalyticMoments.hpp"
 
 int main() {
 	
-	WigleyModeler Wigley {{80,120},{25,35},{17,19},0.73,0.13,0.45};
+	WigleyModeler Wigley {{0.8,1.2},{0.08,0.12},{0.05,0.075},0.2,0,1};
+
+	WigleyAnalyticMoments WigleyAnalytic {Wigley};
 	
-	int order = 2;
-	int order_analysis = 1;
-	int N_samples = 10;
+	std::vector<double> SI = GMGSA(WigleyAnalytic,200,4);
 	
-	stdModelerMoments<WigleyModeler> WigleyApprox {Wigley,10};
-	
-	WigleyAnalyticMoments WigleyAna {Wigley};
-	
-	std::cout << WigleyAna.moment(0,6,0) << std::endl;
-	//std::cout << WigleyApprox.moment(6,4,7) << std::endl;
-	return 0;
-	//WigleyApprox.triangulate("Wigley.stl");
-	
-	std::vector<double> ssv = SSV(WigleyApprox,order);
-	
-	std::vector<double> SI = GMGSA(WigleyApprox,N_samples,order_analysis);
-	
-	std::vector<double> ssv_an = SSV(WigleyAna,order);
-	
-	std::vector<double> SI_an = GMGSA(WigleyAna,N_samples,order_analysis);
-	
-	std::cout << "SSV length difference: "<< std::endl;
-	double norm=0;
-	for(int i = 0; i < ssv_an.size();i++){
-		norm += std::pow(std::abs(ssv_an.at(i)-ssv.at(i)),2);
+	for (int i = 0; i < SI.size(); i++){
+		std::cout << SI.at(i) << std::endl;
 	}
-	norm = std::sqrt(norm);
-	std::cout << norm << std::endl;
+
 	return 0;
 }
