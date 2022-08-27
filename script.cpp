@@ -11,7 +11,7 @@ int main() {
 
 	WigleyAnalyticMoments WigleyAnalytic {Wigley};
 	
-	std::vector<double> SI = GMGSA(WigleyAnalytic,200,4);
+	std::vector<double> SI = GMGSA(WigleyAnalytic,100,4);
 	
 	for (int i = 0; i < SI.size(); i++){
 		std::cout << SI.at(i) << std::endl;

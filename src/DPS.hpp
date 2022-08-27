@@ -254,7 +254,7 @@ std::vector<std::vector<double>> DPS(
 							}
 							
 							//F2 calculation for S_prime
-							if (std::abs(S.at(p).at(j) - S.at(q).at(j)) > Delta.at(j)){//Spj and Sqj cant be in the same discretized interval
+							if (std::abs(S_prime.at(p).at(j) - S_prime.at(q).at(j)) > Delta.at(j)){//Spj and Sqj cant be in the same discretized interval
 																					   //if their distance is larger than said interval
 								F2S_prime += 0;
 							}
