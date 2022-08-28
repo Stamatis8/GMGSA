@@ -2,6 +2,8 @@
 #include <vector>
 
 #include "src/GMGSA.hpp"
+#include "src/combinations.hpp"
+#include "src/DRS.hpp"
 
 #include "modelers/WigleyModeler.hpp"
 #include "modelers/WigleyAnalyticMoments.hpp"
@@ -10,7 +12,16 @@
 #include "util/timer.hpp"
 
 int main() {
-	
+
+	double N = 9000;
+	double i = 1;
+	std::vector<std::vector<double>> S = DRS({ {-1,1},{-1,1} }, std::vector<std::vector<double>>(), N, i);
+	std::vector<std::vector<double>> S_new = DRS({ {-1,1},{-1,1} }, S, N, 4);
+	WriteToFile(S, "temp1.dat");
+	WriteToFile(S_new, "temp2.dat");
+	system("gnuplot -p util/temp.sh");
+	return 0;
+
 	WigleyModeler Wigley {{0.8,1.2},{0.08,0.12},{0.05,0.075},0.2,0,1};
 
 	WigleyAnalyticMoments WigleyAnalytic {Wigley};

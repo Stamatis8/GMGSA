@@ -5,15 +5,15 @@
 #include <vector>
 #include <fstream>
 
-
+template<typename scalar>
 bool WriteToFile(
-	std::vector<std::vector<double>> X,
+	std::vector<std::vector<scalar>> X,
 	std::string filename
 	);
 
-
+template<typename scalar>
 bool WriteToFile(
-	std::vector<std::vector<double>> X,
+	std::vector<std::vector<scalar>> X,
 	std::string filename
 	)
 {

@@ -1,0 +1,1 @@
+plot 'Par1.dat' with linespoint, 'Par2.dat' with linespoint, 'Par3.dat' with linespoint;

@@ -56,7 +56,7 @@ std::vector<std::vector<double>> DPS(
 		
 		Note: S_hat should be passed as an empty vector, if it is not to be used. Ie DPS(X,std::vector<std::vector<double>>(),N,ns,i_max,omega)
 	*/
-	
+
 	int n = X.size(); // number of parameters in design space
 	std::vector<std::vector<std::vector<double>>> P(N, std::vector<std::vector<double>>(ns, std::vector<double>(n,0))); // population
 	
@@ -72,7 +72,7 @@ std::vector<std::vector<double>> DPS(
 	
 	/* Initializing S by first entry of each sub-population	*/
 	
-	std::vector<std::vector<double>> S(N,std::vector<double>(n,0)); // final-sample
+	std::vector<std::vector<double>> S(N,std::vector<double>(n,0)); // final-samples
 	
 	for (int i = 0; i < N; i++){
 		S.at(i) = P.at(i).at(0);
