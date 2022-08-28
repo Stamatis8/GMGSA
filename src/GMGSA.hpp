@@ -5,6 +5,7 @@
 
 #include "GSI_T_estimator.hpp"
 #include "DPS.hpp"
+#include "DRS.hpp"
 #include "SSV.hpp"
 #include "geom_moments/geom_moments.hpp"
 
@@ -58,20 +59,35 @@ std::vector<double> GMGSA(PM modeler,int N, int order){
 		
 	*/
 	
-	/* Generate N samples X using DPS */
+	bool use_DPS = false;// if true uses DPS.hpp for sample generation. Else uses DRS.hpp
+
+	/* Generate N samples X */
 	
 	int sub_population_size = 2;// see references in DPS.hpp
 	int max_iterations = 3;// see references in DPS.hpp
 	double omega = 1;// see references in DPS.hpp
 
-	std::vector<std::vector<double>> X = DPS(
-		modeler.design_space(),
-		std::vector<std::vector<double>>(),
-		N,
-		sub_population_size,
-		max_iterations,
-		omega
-	);
+	std::vector<std::vector<double>> X;// samples
+
+	if (use_DPS) {
+
+		X = DPS(
+			modeler.design_space(),
+			std::vector<std::vector<double>>(),
+			N,
+			sub_population_size,
+			max_iterations,
+			omega
+		);
+	}
+	else {
+		X = DRS(
+			modeler.design_space(),
+			std::vector<std::vector<double>>(),
+			N,
+			1
+		);
+	}
 
 	/* Using modeler and SSV calculate shape signature vector array Y */
 	
@@ -90,14 +106,29 @@ std::vector<double> GMGSA(PM modeler,int N, int order){
 
 	/* Using DPS generate independent samples X_prime for ith parameter */
 
-	std::vector<std::vector<double>> X_new = DPS(// Generate X_new with repulsion criterion (see references in DPS.hpp) applied to X
-		modeler.design_space(),
-		X,
-		N,
-		sub_population_size,
-		max_iterations,
-		omega
-	);
+	std::vector<std::vector<double>> X_new;
+
+	if (use_DPS) {
+
+		X_new = DPS(
+			modeler.design_space(),
+			X,
+			N,
+			sub_population_size,
+			max_iterations,
+			omega
+		);
+
+	}
+	else {
+
+		X_new = DRS(
+			modeler.design_space(),
+			X,
+			N,
+			5
+		);
+	}
 
 	std::vector<std::vector<double>> X_prime = X_new;
 		// For each parameter, X_prime.at(i) will hold said parameter from X and set all others from X_new

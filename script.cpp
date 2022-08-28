@@ -13,6 +13,7 @@
 
 int main() {
 
+	/*
 	double N = 9000;
 	double i = 1;
 	std::vector<std::vector<double>> S = DRS({ {-1,1},{-1,1} }, std::vector<std::vector<double>>(), N, i);
@@ -21,6 +22,7 @@ int main() {
 	WriteToFile(S_new, "temp2.dat");
 	system("gnuplot -p util/temp.sh");
 	return 0;
+	*/
 
 	WigleyModeler Wigley {{0.8,1.2},{0.08,0.12},{0.05,0.075},0.2,0,1};
 
@@ -32,7 +34,7 @@ int main() {
 	int order = 4;
 	
 	timer t;
-	for (int N = 100; N <= 500; N+=50) {
+	for (int N = 10; N <= 500; N+=5) {
 		t.begin();
 		SI = GMGSA(WigleyAnalytic, N, 4);
 		T1.push_back({ double(N),SI.at(0),double(order) });
