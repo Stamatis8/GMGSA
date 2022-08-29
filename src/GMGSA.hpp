@@ -63,8 +63,8 @@ std::vector<double> GMGSA(PM modeler,int N, int order){
 
 	/* Generate N samples X */
 	
-	int sub_population_size = 2;// see references in DPS.hpp
-	int max_iterations = 3;// see references in DPS.hpp
+	int sub_population_size = 1;// see references in DPS.hpp
+	int max_iterations = 2;// see references in DPS.hpp
 	double omega = 1;// see references in DPS.hpp
 
 	std::vector<std::vector<double>> X;// samples

@@ -1,0 +1,1 @@
+plot '300_2D_DPS.dat' pt 7 ps 0.5, '300_next_2D_DPS.dat' pt 8 ps 0.5

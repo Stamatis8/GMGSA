@@ -1,23 +1,33 @@
-#ifndef DRS_HPP
-#define DRS_HPP
+29/08/22
+# Description
 
-#include <vector>
-#include <cmath>
+	WigleyModeler Wigley {{0.8,1.2},{0.08,0.12},{0.05,0.075},0.2,0,1};
 
-#include "combinations.hpp"
+	WigleyAnalyticMoments WigleyAnalytic {Wigley};
 
-std::vector<std::vector<double>> DRS(
+DRS was used for sampling generation
+
+## DRS with uniform sampling
+	#ifndef DRS_HPP
+	#define DRS_HPP
+
+	#include <vector>
+	#include <cmath>
+
+	#include "combinations.hpp"
+
+	std::vector<std::vector<double>> DRS(
 	std::vector<std::vector<double>> X,
 	std::vector<std::vector<double>> S_prev,
 	int N,
 	int iterations);
 
-std::vector<std::vector<double>> DRS(
+	std::vector<std::vector<double>> DRS(
 	std::vector<std::vector<double>> X,
 	std::vector<std::vector<double>> S_prev,
 	int N,
 	int iterations)
-{
+	{
 	/*
 		Description: X specifies the design space. Random samples are generated in said design space. First X is
 			discretized into approximately a number sub-hypercubes. Then, at the 0th iteration, one design is randomly generated 
@@ -90,7 +100,7 @@ std::vector<std::vector<double>> DRS(
 			centroids.at(i).at(d) = (X_discrete.at(d).at(c) + X_discrete.at(d).at(c + 1)) / 2;
 		
 			//DEBUG
-			//S.at(i).at(d) = X_discrete.at(d).at(c) + (X_discrete.at(d).at(c + 1) - X_discrete.at(d).at(c)) * 0.25;
+			S.at(i).at(d) = X_discrete.at(d).at(c) + (X_discrete.at(d).at(c + 1) - X_discrete.at(d).at(c)) * 0.25;
 		}
 	} 
 
@@ -111,7 +121,7 @@ std::vector<std::vector<double>> DRS(
 					S.at(i).at(d) = S.at(i).at(d) + (centroids.at(i).at(d) - S.at(i).at(d)) * p;
 				
 					//DEBUG
-					//S.at(i).at(d) = X_discrete.at(d).at(c) + (X_discrete.at(d).at(c + 1) - X_discrete.at(d).at(c)) * 0.75;
+					S.at(i).at(d) = X_discrete.at(d).at(c) + (X_discrete.at(d).at(c + 1) - X_discrete.at(d).at(c)) * 0.75;
 				}
 			}
 		}
@@ -125,6 +135,36 @@ std::vector<std::vector<double>> DRS(
 	}// i
 
 	return S;
-}
+	}
 
-#endif// DRS_HPP
+	#endif// DRS_HPP
+
+look at `10e2_2D_uniform_samples_example.png` for an example of this
+
+## DRS with standard method
+
+### `10e3_10e4_uniform_samples.png`
+
+results were generated with 0 iterations for first DRS run in GMGSA and 1 iterations for second DRS run in GMGSA
+
+### `10e3_10e4_standard_DRS_samples.png`
+
+results were generated with 1 iteration for first DRS run in GMGSA and 5 iterations for second DRS run in GMGSA
+
+### `10e2_2D_uniform_samples.png`
+
+0 iterations for first DPS run, 1 iteration for second DPS run
+
+### `10e2_2D_standard_DRS_samples.png`
+
+1 iteration for first DPS run, 3 for second DPS run
+
+### `10e2_2D_DPS_samples.png`
+
+	//std::vector<std::vector<double>> S = DRS({ {-1,1},{-1,1} }, std::vector<std::vector<double>>(), N, 1);
+
+	std::vector<std::vector<double>> S = DPS({ {-1,1},{-1,1} }, std::vector<std::vector<double>>(), N, 2, 3, 1);
+
+	//std::vector<std::vector<double>> S_new = DRS({ {-1,1},{-1,1} }, S, N, 3);
+
+	std::vector<std::vector<double>> S_new = DPS({ {-1,1},{-1,1} }, S, N, 2, 3, 1);

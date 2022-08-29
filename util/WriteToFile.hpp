@@ -8,13 +8,15 @@
 template<typename scalar>
 bool WriteToFile(
 	std::vector<std::vector<scalar>> X,
-	std::string filename
+	std::string filename,
+	std::string message = ""
 	);
 
 template<typename scalar>
 bool WriteToFile(
 	std::vector<std::vector<scalar>> X,
-	std::string filename
+	std::string filename,
+	std::string message
 	)
 {
 	/*
@@ -45,6 +47,10 @@ bool WriteToFile(
 	
 		out = true;
 	
+		if (message != "") {//print message
+			file << "#" << message << std::endl;
+		}
+
 		for (int i = 0;i < X.size();i++){
 			for (int j = 0; j < X.at(i).size(); j++){
 				file << X.at(i).at(j);
