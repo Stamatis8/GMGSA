@@ -6,7 +6,7 @@
 
 #include "WigleyModeler.hpp"
 #include "../src/geom_moments/NchooseK_cache.hpp"
-
+template<typename scalar = double>
 class WigleyAnalyticMoments: public WigleyModeler{
 
 public:
@@ -15,7 +15,7 @@ public:
 
 	WigleyAnalyticMoments(WigleyModeler m):WigleyModeler(m){}
 
-	double moment(int p, int q, int r, bool is_translation_invariant = false, bool is_scaling_invariant = false){
+	scalar moment(int p, int q, int r, bool is_translation_invariant = false, bool is_scaling_invariant = false){
 		/*
 			Description:
 				  - Calculates the s = p + q + r order geometric moment of the current Wigley hull in modeler.
@@ -27,16 +27,16 @@ public:
 			return 0;
 		}
 		
-		double M;// moment
-		double V;// volume
+		scalar M;// moment
+		scalar V;// volume
 
-		double L = this->design.at(0);
-		double B = this->design.at(1);
-		double d = this->design.at(2);
+		scalar L = this->design.at(0);
+		scalar B = this->design.at(1);
+		scalar d = this->design.at(2);
 		
 		if (is_translation_invariant){// center design
 			V = this->moment(0,0,0);
-			double Cz = this->moment(0,0,1)/V;
+			scalar Cz = this->moment(0,0,1)/V;
 			d = d - Cz;
 			
 			//x,y are already centered
@@ -44,9 +44,9 @@ public:
 		
 		NchooseK_cache nk;// binomial coefficient cache
 		
-		double sum = 0;
-		double Xi;
-		double Zi;
+		scalar sum = 0;
+		scalar Xi;
+		scalar Zi;
 		
 		for (int i = 0; i <= q + 1; i++){
 					

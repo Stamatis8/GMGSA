@@ -85,12 +85,23 @@ int main() {
 
 	WigleyModeler Wigley {{0.8,1.2},{0.08,0.12},{0.05,0.075},0.2,0,1};
 
-	WigleyAnalyticMoments WigleyAnalytic {Wigley};
+	WigleyAnalyticMoments<long double> WigleyAnalytic {Wigley};
 	
 	std::vector<std::vector<double>> T1, T2, T3;// Three parameters vs sample size
 	std::vector<double> SI;//Sensitivity indices
 	
-	
+	// Calculate a single moment
+	int p = 10;
+	int q = 10;
+	int r = 10;
+	std::cout << "Moment " << p << " - " << q << " - " << r << " is: " << WigleyAnalytic.moment(p, q, r) << std::endl;
+	return 0;
+
+	// 10 - 10 - 10 = -1.14542e-027 with double precision and 1.4008133585616863431e-040 in maple
+	//				= -1.27462e-027 with float precision
+	//				= -1.14542e-027 with long double
+
+
 	int order = 4;
 	timer t;
 	for (int N = 100; N <= 500; N+=50) {
