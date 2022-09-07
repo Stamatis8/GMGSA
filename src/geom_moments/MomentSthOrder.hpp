@@ -224,7 +224,7 @@ double MomentSthOrder(
 	int i3;
 	int j3;
 	
-	NchooseK_cache NK;// N choose K cache
+	NchooseK_cache<double> NK;// N choose K cache
 	NK.get(std::max(i,std::max(j,k)),0);// Precomputing N choose m pairs for all m and N <= max(i,j,k)
 	
 	J_cache J;// initializing Jab integral cache. See appendix 1 of [1]

@@ -7,6 +7,13 @@
 
 template<typename scalar>
 bool WriteToFile(
+	scalar X,
+	std::string filename,
+	std::string message = ""
+);
+
+template<typename scalar>
+bool WriteToFile(
 	std::vector<std::vector<scalar>> X,
 	std::string filename,
 	std::string message = ""
@@ -67,5 +74,14 @@ bool WriteToFile(
 	return(out);
 	
 }// WriteToFile()
+
+template<typename scalar>
+bool WriteToFile(
+	scalar X,
+	std::string filename,
+	std::string message
+) {
+	return WriteToFile(std::vector<std::vector<scalar>> {{X}}, filename, message);
+}
 
 #endif// WRITETOFILE_HPP

@@ -3,15 +3,16 @@
 
 #include <vector>
 
+template<typename scalar = double>
 struct NchooseK_cache{
-	std::vector<std::vector<double>> nk;
+	std::vector<std::vector<scalar>> nk;
 	/*
 		- the nk table contains (n,k) pairs. nk.at(i).at(j) is equal to (i choose j)
 		- throughout the program execution **in the scope that NchooseK is initialized at** , more and more values are calculated and included in nk
 		- let M = nk.size. All elements nk.at(i).at(j), for i = 0,...,M-1 are calculated
 	*/
-	
-	int get(int n,int k){
+
+	scalar get(int n, int k){
 		/*
 			Description: checks if (n,k) is calculated in nk. If it is calculated in nk, then nk.at(n).at(k) is returned.
 				If it is not calculated then nk.size() - 1 <  n. Then, all values nk.at(i) for i = nk.size() to n are
@@ -46,7 +47,7 @@ struct NchooseK_cache{
 		
 		for (int i = prev+1; i <= n; i++){// nk.at(prev+1) through nk.at(n) must be filled
 			
-			nk.at(i) = std::vector<double>(i+1,0);
+			nk.at(i) = std::vector<scalar>(i+1,0);
 			
 			nk.at(i).at(0) = 1;// (i choose 0) = 1
 			nk.at(i).at(i) = 1;// (i choose i) = 1
