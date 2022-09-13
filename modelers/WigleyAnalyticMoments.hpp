@@ -3,12 +3,13 @@
 
 #include <vector>
 #include <cmath>
+#include <boost/multiprecision/cpp_dec_float.hpp>
 
 #include "WigleyModeler.hpp"
 #include "../src/geom_moments/NchooseK_cache.hpp"
 #include "../src/pow_t.hpp"
 
-template<typename scalar = double>
+template<typename scalar>
 class WigleyAnalyticMoments: public WigleyModeler{
 
 public:
@@ -36,12 +37,14 @@ public:
 		scalar B = this->design.at(1);
 		scalar d = this->design.at(2);
 		
-		if (is_translation_invariant){// center design
+		scalar c = 0;// constant related to translation invariant formulation
+		if (is_translation_invariant){
+			 
 			V = this->moment(0,0,0);
-			scalar Cz = this->moment(0,0,1)/V;
-			d = d - Cz;
+			c = this->moment(0, 0, 1) / (V * d);
 			
 			//x,y are already centered
+
 		}				
 		
 		NchooseK_cache<scalar> nk;// binomial coefficient cache
@@ -58,10 +61,25 @@ public:
 			for (int i1 = 0; i1 <= (q+1-i); i1++){
 				for (int i2 = 0; i2 <= i; i2++){
 	
-					Zi = Zi + scalar(nk.get(q + 1 - i, i1)) 
-						* scalar(nk.get(i, i2))
-						* pow_t<scalar>(-1, i1 + i2)
-						/ scalar(r + 2 * i + 2 * i1 + 8 * i2 + 1);
+					if (is_translation_invariant) {
+						// translation-invariant formulation
+
+						for (int j = 0; j <= r; j++) {
+							Zi = Zi + scalar(nk.get(q + 1 - i, i1))
+								* scalar(nk.get(i, i2))
+								* scalar(nk.get(r, j))
+								* pow_t<scalar>(-1, i1 + i2 + j)
+								* pow_t<scalar>(c,j)
+								/ scalar(r - j + 2 * i + 2 * i1 + 8 * i2 + 1);
+						}
+
+					}
+					else {// standard
+						Zi = Zi + scalar(nk.get(q + 1 - i, i1))
+							* scalar(nk.get(i, i2))
+							* pow_t<scalar>(-1, i1 + i2)
+							/ scalar(r + 2 * i + 2 * i1 + 8 * i2 + 1);
+					}
 					
 				}// i2
 			}// i1
@@ -103,7 +121,7 @@ public:
 				V = this->moment(0,0,0);
 			}
 
-			M = M / (pow_t(V, (1 + (p + q + r) / 3)));// [Check] type handling in expression 
+			M = M / (boost::multiprecision::pow(V, (1 + scalar(p + q + r) / 3)));// [Check] type handling in expression 
 		}
 		
 		return M;	

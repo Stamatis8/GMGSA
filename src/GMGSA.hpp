@@ -8,12 +8,13 @@
 #include "DRS.hpp"
 #include "SSV.hpp"
 #include "geom_moments/geom_moments.hpp"
+#include "SimpleMonteCarlo.hpp"
 
-template<typename PM>
-std::vector<double> GMGSA(PM modeler, int N, int order);
+template<typename PM, typename scalar = double>
+std::vector<scalar> GMGSA(PM modeler, int N, int order);
 
-template<typename PM>
-std::vector<double> GMGSA(PM modeler,int N, int order){
+template<typename PM, typename scalar = double>
+std::vector<scalar> GMGSA(PM modeler,int N, int order){
 	/*
 		Description: Performs Geometric Moment-dependent Global Sensitivity Analysis on modeler, according to
 		
@@ -59,17 +60,26 @@ std::vector<double> GMGSA(PM modeler,int N, int order){
 		
 	*/
 	
-	bool use_DPS = false;// if true uses DPS.hpp for sample generation. Else uses DRS.hpp
+	int sampling = 2;// Which sampling method to use:
+					// sampling = 0 -> DPS
+					// sampling = 1 -> DRS
+					// sampling = 2 -> SimpleMonteCarlo
 
-	/* Generate N samples X */
-	
+
+	//DPS options
 	int sub_population_size = 1;// see references in DPS.hpp
 	int max_iterations = 2;// see references in DPS.hpp
 	double omega = 1;// see references in DPS.hpp
 
+	//DRS options
+	int i_first = 1;// number of iterations at first sampling
+	int i_second = 7;// number of iterations at second sampling
+
+	/* Generate N samples X */
+	
 	std::vector<std::vector<double>> X;// samples
 
-	if (use_DPS) {
+	if (sampling == 0) {
 
 		X = DPS(
 			modeler.design_space(),
@@ -80,35 +90,37 @@ std::vector<double> GMGSA(PM modeler,int N, int order){
 			omega
 		);
 	}
-	else {
+	else if (sampling == 1) {
 		X = DRS(
 			modeler.design_space(),
 			std::vector<std::vector<double>>(),
 			N,
-			1
+			i_first
 		);
+	}
+	else if (sampling == 2) {
+		X = SimpleMonteCarlo(modeler.design_space(), N);
 	}
 
 	/* Using modeler and SSV calculate shape signature vector array Y */
 	
-	std::vector<std::vector<double>> Y(X.size(),std::vector<double>()); //Y.at(i) equals the SSV of X.at(i) of order
-	std::vector<std::vector<std::vector<double>>> triangulation;// triangulation of design
+	std::vector<std::vector<scalar>> Y(X.size(),std::vector<scalar>()); //Y.at(i) equals the SSV of X.at(i) of order
 	
 	for (int design = 0; design < X.size(); design++){
 		modeler.set_design(X.at(design));// choose design
 		
-		Y.at(design) = SSV(modeler,order);// calculate SSV for design
+		Y.at(design) = SSV<PM,scalar>(modeler,order);// calculate SSV for design
 	}
 	
 	/* Initialize result SI and start calculation */
 	
-	std::vector<double> SI(modeler.design_space().size(),0);// SI.at(i) = ith sensitivity index
+	std::vector<scalar> SI(modeler.design_space().size(),0);// SI.at(i) = ith sensitivity index
 
 	/* Using DPS generate independent samples X_prime for ith parameter */
 
 	std::vector<std::vector<double>> X_new;
 
-	if (use_DPS) {
+	if (sampling == 0) {
 
 		X_new = DPS(
 			modeler.design_space(),
@@ -120,20 +132,23 @@ std::vector<double> GMGSA(PM modeler,int N, int order){
 		);
 
 	}
-	else {
+	else if (sampling == 1) {
 
 		X_new = DRS(
 			modeler.design_space(),
 			X,
 			N,
-			5
+			i_second
 		);
+	}
+	else if (sampling == 2) {
+		X_new = SimpleMonteCarlo(modeler.design_space(), N);
 	}
 
 	std::vector<std::vector<double>> X_prime = X_new;
 		// For each parameter, X_prime.at(i) will hold said parameter from X and set all others from X_new
 	
-	std::vector<std::vector<double>> Y_prime(X_prime.size(),std::vector<double>());
+	std::vector<std::vector<scalar>> Y_prime(X_prime.size(),std::vector<scalar>());
 	
 	for (int parameter = 0; parameter < modeler.design_space().size(); parameter++){// Calculate GSI total, for each parameter
 
@@ -148,12 +163,12 @@ std::vector<double> GMGSA(PM modeler,int N, int order){
 		for (int design = 0; design < X_prime.size(); design++){
 			modeler.set_design(X_prime.at(design));// choose design
 			
-			Y_prime.at(design) = SSV(modeler,order);// calculate SSV for design
+			Y_prime.at(design) = SSV<PM, scalar>(modeler,order);// calculate SSV for design
 		}
 		
 		/* Using GSI_T_estimator, calculate SI.at(parameter) */
 		
-		SI.at(parameter) = GSI_T_estimator(Y,Y_prime);
+		SI.at(parameter) = GSI_T_estimator<scalar>(Y,Y_prime);
 		
 		/* Undoing X_prime change to bring it back to X_prime = X_new */
 		

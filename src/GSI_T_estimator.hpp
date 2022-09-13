@@ -4,9 +4,11 @@
 #include <vector>
 #include <cmath>
 
-double GSI_T_estimator(std::vector<std::vector<double>> Y, std::vector<std::vector<double>> Y_prime);
+template<typename scalar>
+scalar GSI_T_estimator(std::vector<std::vector<scalar>> Y, std::vector<std::vector<scalar>> Y_prime);
 
-double GSI_T_estimator(std::vector<std::vector<double>> Y, std::vector<std::vector<double>> Y_prime){
+template<typename scalar>
+scalar GSI_T_estimator(std::vector<std::vector<scalar>> Y, std::vector<std::vector<scalar>> Y_prime){
 	/*
 		Description: Estimates the Generalized Total Sensitivity Index (GSI_T) of some parameter unknown to the function. 
 			The parameter information is contained in Y, Y_prime but is not needed. This is simply the implementation of the
@@ -34,10 +36,10 @@ double GSI_T_estimator(std::vector<std::vector<double>> Y, std::vector<std::vect
 				Sensitivity index approximation. See references
 	*/
 	
-	double nominator = 0;
-	double denominator = 0;
+	scalar nominator = 0;
+	scalar denominator = 0;
 	
-	double A, B, C; //nom = sum(A - B/N), denom = sum(C - B/N)
+	scalar A, B, C; //nom = sum(A - B/N), denom = sum(C - B/N)
 	
 	int N = Y.size();
 	int k = Y.at(0).size();
@@ -51,10 +53,10 @@ double GSI_T_estimator(std::vector<std::vector<double>> Y, std::vector<std::vect
 		for (int i = 0; i < N; i++){
 			A += Y.at(i).at(l)*Y_prime.at(i).at(l);
 			B += (Y.at(i).at(l) + Y_prime.at(i).at(l))/2;
-			C += (std::pow(Y.at(i).at(l),2) + std::pow(Y_prime.at(i).at(l),2))/2;
+			C += (Y.at(i).at(l) * Y.at(i).at(l) + Y_prime.at(i).at(l) * Y_prime.at(i).at(l))/2;
 		}
 		
-		B = std::pow(B,2);
+		B = B*B;
 		
 		nominator += A - B/N;
 		denominator += C - B/N;

@@ -3,11 +3,11 @@
 
 #include <vector>
 
-template<typename PM>
-std::vector<double> SSV(PM modeler, int order);
+template<typename PM, typename scalar = double>
+std::vector<scalar> SSV(PM modeler, int order);
 	
-template<typename PM>
-std::vector<double> SSV(PM modeler, int order){
+template<typename PM, typename scalar = double>
+std::vector<scalar> SSV(PM modeler, int order){
 	/*
 		Description: Constructs the Shape Signature Vector (SSV) of *order*, for *modeler*. SSV is
 			defined in
@@ -28,7 +28,7 @@ std::vector<double> SSV(PM modeler, int order){
 				order of Shape Signature Vector as in [1]
 	*/
 	
-	std::vector<double> SSV;// Shape signature vector	
+	std::vector<scalar> SSV;// Shape signature vector	
 	int count;// counts elements in combinations
 	
 	for (int s = 0; s <= order; s++){
