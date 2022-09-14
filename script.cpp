@@ -2,7 +2,10 @@
 #include <vector>
 #include <cstdlib>
 #include <string>
+
 #include <boost/multiprecision/cpp_dec_float.hpp>
+
+//#define GMGSA_USE_BOOST_MULTIPRECISION
 
 #include "src/GMGSA.hpp"
 #include "src/combinations.hpp"
@@ -82,11 +85,14 @@ int main() {
 	return 0;
 	*/
 
-	std::srand(6987879);
+	std::srand(21321);
 
 	WigleyModeler Wigley {{0.8,1.2},{0.08,0.12},{0.05,0.075},0.2,0,1};
 
-	typedef boost::multiprecision::number<boost::multiprecision::cpp_dec_float< 30 > > BigFloat;
+	//typedef boost::multiprecision::number<boost::multiprecision::cpp_dec_float< 30 > > BigFloat;
+
+	typedef long double BigFloat;
+
 	WigleyAnalyticMoments<BigFloat> WigleyAnalytic{ Wigley };
 
 	std::vector<std::vector<BigFloat>> T1, T2, T3;// Three parameters vs sample size
@@ -95,9 +101,9 @@ int main() {
 	/*
 	int order = 4;
 	timer t;
-	for (int N = 100; N <= 1000; N+=150) {
+	for (int N = 100; N <= 1000; N+=100) {
 		t.begin();
-		SI = GMGSA<WigleyAnalyticMoments<BigFloat>, BigFloat>(WigleyAnalytic, N, 4);
+		SI = GMGSA<WigleyAnalyticMoments<BigFloat>, BigFloat>(WigleyAnalytic, N, order);
 		T1.push_back({ double(N),SI.at(0),double(order) });
 		T2.push_back({ double(N),SI.at(1),double(order) });
 		T3.push_back({ double(N),SI.at(2),double(order) });
@@ -108,12 +114,13 @@ int main() {
 	}
 	*/
 
-	
-	int N = 100;
+	int N = 5000;
 	timer t;
-	for (int order = 0; order <= 5; order += 1) {
+	for (int order = 0; order <= 9; order += 1) {
 		t.begin();
+		
 		SI = GMGSA<WigleyAnalyticMoments<BigFloat>, BigFloat>(WigleyAnalytic, N, order);
+	
 		T1.push_back({ double(order),SI.at(0),double(N) });
 		T2.push_back({ double(order),SI.at(1),double(N) });
 		T3.push_back({ double(order),SI.at(2),double(N) });
@@ -122,7 +129,6 @@ int main() {
 		t.display();
 		std::cout << "s \n";
 	}
-	
 
 	WriteToFile(T1, "Par1.dat");
 	WriteToFile(T2, "Par2.dat");

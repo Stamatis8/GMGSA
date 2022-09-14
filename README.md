@@ -8,10 +8,14 @@
 
 - Standard Library
 
-### Optional
+### Optional (included in `src`)
 
 - This [https://github.com/Stamatis8/geom_moments](https://github.com/Stamatis8/geom_moments) repository. Used to calculate geometric moments. It is already included in `src` file
 - This [https://github.com/Stamatis8/smpl_triangulation](https://github.com/Stamatis8/smpl_triangulation) repository. Used in examples to constuct triangulation of surface from parametrized model. It is also used to construct .STL files from the various designs. It is already included in `src` file
+
+### Optional (not included in `src`)
+
+- [Boost multiprecision](https://github.com/boostorg/multiprecision) standalone library. Used in the wigley hull examples for arbitrary SSV precision
 
 # Usage
 
@@ -28,42 +32,13 @@ However, a solution for the moment calculation is provided via the `modelers\std
 # Documentation
 
 Unfortunately, no organized documentation document exists yet. However each object is documented thoroughly at its definition.
-What follows is a minimal example for using the GMGSA() function
+So far there are three examples which document the usage of the `GMGSA()` tool.
 
-## Wigley hull example
+- `examples\Wigley_Analytic.cpp`: Perform GMGSA on a wigley hull modeler with analytic computation of SSV
+- `examples\Wigley_Analytic_Boost.cpp`: Perform GMGSA on a wigley hull modeler with analytic computation of SSV, making use of the [boost multiprecision](https://github.com/boostorg/multiprecision) standalone library. This allows arbitrarily large order SSVs with controllable float-point errors but with significantly increased computational cost
+- `examples\Wigley_Mesh.cpp`: Perform GMGSA on a wigley hull modeler using the `geom_moment` library for approximate moments. If the user wishes to provide their own *minimal* modeler (ie point evaluation only) this is the example to look at.
 
-The modifed Wigley hull-form is well-known and widely used for experimental and numerical studies [6]. The goal is to perform GMGSA of order 2 on a Wigley hull parametric modeler. The proposed parametric modeler for the wigley hull can be found in `modelers/WigleyModeler.hpp`. The example can be found in `examples/Wigley.cpp`.
-The user is to create the `WigleyModeler` class with the requirements listed below. A minimal template exists in `modelers/ParametricModeler.hpp`.
-
-	#include <vector>
-	#include <iostream>
-
-	#include "../src/GMGSA.hpp"
-
-	#include "../modelers/WigleyModeler.hpp"
-	#include "../modelers/stdModelerMoments.hpp"
-
-	int main(){
-
-		double c1 = 0.2;// length
-		double c2 = 0;// breadth
-		double c3 = 1;// depth
-		int N_triangles = 200;// number of triangles to create mesh with
-
-		WigleyModeler model { {0.8,1.2},{0.08,0.12},{0.05,0.075},0.2,0,1 };
-	
-		stdModelerMoments<WigleyModeler> Wigley { model, N_triangles };
-
-		std::vector<double> GSI; //generalized sensitivity indices
-	
-		GSI = GMGSA(Wigley,50,2);// 50 samples, order 2 SSV
-	
-		for (int i = 0; i < GSI.size(); i++){	
-			std::cout << "Sensitivity index for t" << i << " is: " << GSI.at(i) << std::endl;
-		}
-
-		return 0;
-	}
+## Modeler class requirements
 
 The `GMGSA()` function, accepts a modeler which must satisfy the following:
 
@@ -89,7 +64,7 @@ The `GMGSA()` function, accepts a modeler which must satisfy the following:
 
 One could create a modeler class which has the three aforementioned methods. **Instead, one can create a more
 minimal modeler class** (say `myModeler`) and then utilize the `stdModelerMoments` template as was demonstrated
-in this example (ie `stdModelerMoments<myModeler>`). Doing so avoids the need to create the `.moment()` method. The
+in the `examples\Wigley_Mesh.cpp` example (ie `stdModelerMoments<myModeler>`). Doing so avoids the need to create the `.moment()` method. The
 geometric moments are instead approximated by triangulating the design by the specified number of triangles.
 The requirements for the more minimal modeler class then become:
 

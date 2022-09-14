@@ -3,11 +3,16 @@
 
 #include <vector>
 #include <cmath>
-#include <boost/multiprecision/cpp_dec_float.hpp>
 
 #include "WigleyModeler.hpp"
 #include "../src/geom_moments/NchooseK_cache.hpp"
 #include "../src/pow_t.hpp"
+
+#ifdef GMGSA_USE_BOOST_MULTIPRECISION// use the boost multiprecision library
+									 // utilizes the boost::multiprecision::pow()
+									 // function when exponent is not an integer
+	#include <boost/multiprecision/cpp_dec_float.hpp>
+#endif
 
 template<typename scalar>
 class WigleyAnalyticMoments: public WigleyModeler{
@@ -121,7 +126,12 @@ public:
 				V = this->moment(0,0,0);
 			}
 
-			M = M / (boost::multiprecision::pow(V, (1 + scalar(p + q + r) / 3)));// [Check] type handling in expression 
+			#ifdef GMGSA_USE_BOOST_MULTIPRECISION
+				M = M / (boost::multiprecision::pow(V, (1 + scalar(p + q + r) / 3)));
+			#else
+				M = M / (std::pow(V, (1 + scalar(p + q + r) / 3)));
+			#endif
+	
 		}
 		
 		return M;	

@@ -14,14 +14,19 @@ int main() {
 
 	WigleyModeler Wigley{ {0.8,1.2},{0.08,0.12},{0.05,0.075},0.2,0,1 };
 
-	typedef boost::multiprecision::number<boost::multiprecision::cpp_dec_float< 80 > > MyFloat;
+	//typedef boost::multiprecision::number<boost::multiprecision::cpp_dec_float< 80 > > MyFloat;
+
+	typedef long double MyFloat;
+
 	WigleyAnalyticMoments<MyFloat> WigleyAnalytic{ Wigley };
 
-	int p = 12;
-	int q = 12;
-	int r = 12;
+	int p = 0;
+	int q = 14;
+	int r = 0;
 	
 	timer t;
+
+	std::cout << std::setprecision(15);
 
 	//Standard geometric moment
 	t.begin();
