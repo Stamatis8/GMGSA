@@ -6,6 +6,7 @@
 #include <boost/multiprecision/cpp_dec_float.hpp>
 
 //#define GMGSA_USE_BOOST_MULTIPRECISION
+//#define GMGSA_USE_TBB
 
 #include "src/GMGSA.hpp"
 #include "src/combinations.hpp"
@@ -85,7 +86,7 @@ int main() {
 	return 0;
 	*/
 
-	std::srand(21321);
+	std::srand(2121);
 
 	WigleyModeler Wigley {{0.8,1.2},{0.08,0.12},{0.05,0.075},0.2,0,1};
 
@@ -114,7 +115,7 @@ int main() {
 	}
 	*/
 
-	int N = 5000;
+	int N = 1000;
 	timer t;
 	for (int order = 0; order <= 9; order += 1) {
 		t.begin();
@@ -127,15 +128,14 @@ int main() {
 
 		std::cout << "Finished with order = " << order << " in ";
 		t.display();
-		std::cout << "s \n";
+		std::cout << "s " << std::endl;
 	}
 
 	WriteToFile(T1, "Par1.dat");
 	WriteToFile(T2, "Par2.dat");
 	WriteToFile(T3, "Par3.dat");
 	
-	system("gnuplot -p util/script.sh");
+	//system("gnuplot -p util/script.sh");
 	
-
 	return 0;
 }

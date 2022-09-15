@@ -10,6 +10,11 @@
 #include "geom_moments/geom_moments.hpp"
 #include "SimpleMonteCarlo.hpp"
 
+#ifdef GMGSA_USE_TBB
+	#include <execution>
+#endif 
+
+
 template<typename PM, typename scalar = double>
 std::vector<scalar> GMGSA(PM modeler, int N, int order);
 
@@ -106,11 +111,24 @@ std::vector<scalar> GMGSA(PM modeler,int N, int order){
 	
 	std::vector<std::vector<scalar>> Y(X.size(),std::vector<scalar>()); //Y.at(i) equals the SSV of X.at(i) of order
 	
-	for (int design = 0; design < X.size(); design++){
-		modeler.set_design(X.at(design));// choose design
+	#ifdef GMGSA_USE_TBB// Multithreaded
+
+		std::transform(std::execution::par, X.begin(), X.end(), Y.begin(), [=](auto x) {
+			
+			auto modeler_copy = modeler;//copying modeler to ensure thread safety
 		
-		Y.at(design) = SSV<PM,scalar>(modeler,order);// calculate SSV for design
-	}
+			modeler_copy.set_design(x);
+
+			return SSV<PM, scalar>(modeler_copy, order);
+		});
+
+	#else// Not multithreaded
+		for (int design = 0; design < X.size(); design++) {
+			modeler.set_design(X.at(design));// choose design
+
+			Y.at(design) = SSV<PM, scalar>(modeler, order);// calculate SSV for design
+		}
+	#endif
 	
 	/* Initialize result SI and start calculation */
 	
@@ -160,11 +178,24 @@ std::vector<scalar> GMGSA(PM modeler,int N, int order){
 
 		/* Using modeler and SSV calculate Y_prime */
 		
-		for (int design = 0; design < X_prime.size(); design++){
-			modeler.set_design(X_prime.at(design));// choose design
-			
-			Y_prime.at(design) = SSV<PM, scalar>(modeler,order);// calculate SSV for design
-		}
+		#ifdef GMGSA_USE_TBB// Multithreaded
+
+				std::transform(std::execution::par, X_prime.begin(), X_prime.end(), Y_prime.begin(), [=](auto x) {
+
+					auto modeler_copy = modeler;//copying modeler to ensure thread safety
+
+					modeler_copy.set_design(x);
+
+					return SSV<PM, scalar>(modeler_copy, order);
+					});
+
+		#else// Not multithreaded
+				for (int design = 0; design < X_prime.size(); design++) {
+					modeler.set_design(X_prime.at(design));// choose design
+
+					Y_prime.at(design) = SSV<PM, scalar>(modeler, order);// calculate SSV for design
+				}
+		#endif
 		
 		/* Using GSI_T_estimator, calculate SI.at(parameter) */
 		

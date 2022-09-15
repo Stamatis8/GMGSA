@@ -1,7 +1,10 @@
 #include <iostream>
-#include <boost/multiprecision/cpp_dec_float.hpp>
+#include <iomanip>
+//#include <boost/multiprecision/cpp_dec_float.hpp>
 #include <cmath>
 #include <vector>
+
+//#define GMGSA_USE_BOOST_MULTIPRECISION
 
 #include "modelers/WigleyModeler.hpp"
 #include "modelers/WigleyAnalyticMoments.hpp"

@@ -16,6 +16,7 @@
 ### Optional (not included in `src`)
 
 - [Boost multiprecision](https://github.com/boostorg/multiprecision) standalone library. Used in the wigley hull examples for arbitrary SSV precision
+- [Threading Building Blocks (tbb)](https://github.com/oneapi-src/oneTBB). Used to implement parallelism (see below)
 
 # Usage
 
@@ -91,6 +92,9 @@ The requirements for the more minimal modeler class then become:
 			surface/design parameter for the current design.
     	- domain must have two elements (ie a surface design)
 
+## Parallelism
+
+As mentioned above, the [tbb](https://github.com/oneapi-src/oneTBB) library is used to utilize multithreading. In order to enable this feature, simply `#define` the preprocessor macro `GMGSA_USE_TBB` and link with `tbb` at the compilation stage. Make sure to define it before including the `GMGSA.hpp` header.
 
 # Description of GMGSA approach
 
