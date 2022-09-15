@@ -84,4 +84,27 @@ bool WriteToFile(
 	return WriteToFile(std::vector<std::vector<scalar>> {{X}}, filename, message);
 }
 
+bool WriteToFile(std::string message, std::string filename) {
+	
+	/*
+		Description: create filename and write message in first line
+
+		If filename already exists, it is deleted
+	*/
+	std::fstream file;
+	bool out;
+
+	file.open(filename, std::ios::out);
+	if (file.is_open()) {
+		out = true;
+		file << message;
+	}
+	else {
+		out = false;
+	}
+	file.close();
+
+	return out;
+}
+
 #endif// WRITETOFILE_HPP
