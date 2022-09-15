@@ -12,6 +12,7 @@
 
 #ifdef GMGSA_USE_TBB
 	#include <execution>
+	#include <algorithm>
 #endif 
 
 
