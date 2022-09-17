@@ -26,6 +26,17 @@ std::vector<scalar> SSV(PM modeler, int order){
 				modeler class
 			- int order
 				order of Shape Signature Vector as in [1]
+
+		Output:
+			- std::vector<scalar> SSV
+				contains all moments of order = 0, ..., 'order'
+				behaviour can be changed based on defined macros (see below)
+
+		Macros:
+			- SSV_REMOVE_ZEROS
+				- The moments in SSV that are *identically* zero are removed
+			- SSV_EXACT_ORDER
+				- Only moments whose order is exactly 'order' are included
 	*/
 	
 	std::vector<scalar> SSV;// Shape signature vector	
@@ -51,13 +62,25 @@ std::vector<scalar> SSV(PM modeler, int order){
 			}
 			
 			/* evaluate each combination and add to SSV */
+			scalar M;//moment
 			for (int i = 0; i < combinations.size(); i++){
+
+#ifdef SSV_EXACT_ORDER// Do not calculate moments not equal to 'order'
+				if (combinations.at(i).at(0) + combinations.at(i).at(1) + combinations.at(i).at(2) != order) continue;
+#endif
+
 				if(s == 0){// save non-scaling invariant volume (which is equal to 1)
-					SSV.push_back(modeler.moment(combinations.at(i).at(0),combinations.at(i).at(1),combinations.at(i).at(2),false,false));
+					M = modeler.moment(combinations.at(i).at(0),combinations.at(i).at(1),combinations.at(i).at(2),false,false);
 				}
 				else{
-					SSV.push_back(modeler.moment(combinations.at(i).at(0),combinations.at(i).at(1),combinations.at(i).at(2),true,true));
+					M = modeler.moment(combinations.at(i).at(0),combinations.at(i).at(1),combinations.at(i).at(2),true,true);
 				}
+
+#ifdef SSV_REMOVE_ZEROS// Do not include moments identically equal to zero
+				if (M == scalar(0)) continue;
+#endif 
+
+				SSV.push_back(M);
 			}
 		}
 	}// s

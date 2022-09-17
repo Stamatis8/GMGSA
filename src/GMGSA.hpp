@@ -63,6 +63,11 @@ std::vector<scalar> GMGSA(PM modeler,int N, int order){
 		Output:
 			- std::vector<double> SI
 				SI.at(i) is equal to the generalized total sensitivity index for the ith parameter
+
+		Macros:
+			- GMGSA_USE_TBB
+				- enables multithreading
+				- to have effect, tbb library must be linked in the compilation process
 		
 	*/
 	
