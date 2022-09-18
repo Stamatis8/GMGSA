@@ -38,9 +38,9 @@ public:
 		scalar M;// moment
 		scalar V;// volume
 
-		scalar L = this->design.at(0);
-		scalar B = this->design.at(1);
-		scalar d = this->design.at(2);
+		scalar L = this->L;
+		scalar B = this->B;
+		scalar d = this->d;
 		
 		scalar c = 0;// constant related to translation invariant formulation
 		if (is_translation_invariant){
