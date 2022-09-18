@@ -17,6 +17,10 @@
 //Thread Building Blocks
 #define GMGSA_USE_TBB
 
+//SSV Options
+//#define SSV_REMOVE_ZEROS
+//#define SSV_EXACT_ORDER
+
 #include "../src/GMGSA.hpp"
 #include "../modelers/WigleyModeler.hpp"
 #include "../modelers/WigleyAnalyticMoments.hpp"
@@ -28,9 +32,9 @@ int main() {
 
 	/* Experiment initialization */
 
-	std::vector<double> order_range = { 0, 15 };// SSV order range of experiment
-	long int N = 14000;// number of samples to be used in experiment
-	int runs = 1;// number of runs of experiment
+	std::vector<double> order_range = { 0, 6 };// SSV order range of experiment
+	long int N = 1000;// number of samples to be used in experiment
+	int runs = 2;// number of runs of experiment
 
 	std::srand(68);// random seed
 

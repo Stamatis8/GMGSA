@@ -16,6 +16,10 @@
 //Thread Building Blocks
 #define GMGSA_USE_TBB
 
+//SSV Options
+//#define SSV_REMOVE_ZEROS
+//#define SSV_EXACT_ORDER
+
 #include "../src/GMGSA.hpp"
 #include "../modelers/WigleyModeler.hpp"
 #include "../modelers/WigleyAnalyticMoments.hpp"
