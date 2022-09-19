@@ -19,14 +19,15 @@
 //SSV Options
 //#define SSV_REMOVE_ZEROS
 //#define SSV_EXACT_ORDER
-
-#include "../src/GMGSA.hpp"
-#include "../modelers/WigleyModeler.hpp"
-#include "../modelers/WigleyAnalyticMoments.hpp"
+//#define SSV_NONE_SCALING_INVARIANT
 
 #include "../util/timer.hpp"
 #include "../util/WriteToFile.hpp"
 #include "../util/WigleyTalkative.hpp"
+
+#include "../src/GMGSA.hpp"
+#include "../modelers/WigleyModeler.hpp"
+#include "../modelers/WigleyAnalyticMoments.hpp"
 
 int main() {
 
@@ -35,13 +36,26 @@ int main() {
 	std::vector<long int> N_range = { 2000, 20000 };// SSV order range of experiment
 	long int N_step = 2000;// calculate at N_range.at(0) + i*N_step until N_range.at(1)
 	int order = 2;// number of samples to be used in experiment
-	int runs = 10;// number of runs of experiment
+	int runs = 1;// number of runs of experiment
 
-	std::srand(2321);// random seed
+	std::srand(11);// random seed
+	//2321
 
 	/* Wigley modeler initialization */
 
-	WigleyModeler model{ { 0.8,1.2 }, { 0.08,0.12 }, { 0.05,0.075 }, 0.2, 0,  1 };
+	//old
+	//WigleyModeler model{ { 0.8,1.2 }, { 0.08,0.12 }, { 0.033,0.046 }, 0.2, 0,  1 };
+
+	//WigleyModeler model{ { 0.8,1.2 }, { 0.08,0.12 }, { 0.033,0.046 }, 0.2, 0,  1 };
+
+	double c = 1;
+	WigleyModeler model{ { c*0.8,c*1.2 }, { c*0.08,c*0.12 }, { c*0.033,c*0.046 }, 0.2, 0,  1 };
+
+	//WigleyModeler model{ 0.1,{0.06,0.15},{0.06,0.15},0.2,0,1,"ratios" };
+
+	//L,B,T
+	//WigleyModeler model{ { 0.8,1.2 }, { 0.072,0.12 }, { 0.06,0.216 }, 0.2, 0,  1 };
+
 	int dim = model.design_space().size();//number of dimensions
 
 	/* Graph title and label creation */

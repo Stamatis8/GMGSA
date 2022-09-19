@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <iostream>
+#include <iomanip>
 #include <string>
 
 //Float Multiprecision Library
@@ -20,29 +21,41 @@
 //SSV Options
 //#define SSV_REMOVE_ZEROS
 //#define SSV_EXACT_ORDER
-
-#include "../src/GMGSA.hpp"
-#include "../modelers/WigleyModeler.hpp"
-#include "../modelers/WigleyAnalyticMoments.hpp"
+//#define SSV_NONE_SCALING_INVARIANT
+//#define SSV_ALL_SCALING_INVARIANT
+#define SSV_MOST_SCALING_INVARIANT
 
 #include "../util/timer.hpp"
 #include "../util/WriteToFile.hpp"
 #include "../util/WigleyTalkative.hpp"
 
+#include "../src/GMGSA.hpp"
+#include "../modelers/WigleyModeler.hpp"
+#include "../modelers/WigleyAnalyticMoments.hpp"
+
+
+
 int main() {
 
 	/* Experiment initialization */
 
-	std::vector<double> order_range = { 0, 6 };// SSV order range of experiment
-	long int N = 10000;// number of samples to be used in experiment
+	std::vector<double> order_range = { 0, 9 };// SSV order range of experiment
+	long int N = 50000;// number of samples to be used in experiment
 	int runs = 1;// number of runs of experiment
 
-	std::srand(2321);// random seed 
+	std::srand(11);// random seed 
 	//68
+	//2321
 
 	/* Wigley modeler initialization */
 
-	WigleyModeler model{ { 0.8,1.2 }, { 0.08,0.12 }, { 0.05,0.075 }, 0.2, 0,  1 };
+	//WigleyModeler model{ { 0.8,1.2 }, { 0.08,0.12 }, { 0.05,0.075 }, 0.2, 0,  1 };
+
+	WigleyModeler model{ { 0.75,1.25 }, { 0.072,0.12 }, { 0.103,0.1725 }, 0.2, 0,  1 };
+
+	//double c = 1;
+	//WigleyModeler model{ { c * 0.8,c * 1.2 }, { c * 0.08,c * 0.12 }, { c * 0.033,c * 0.046 }, 0.2, 0,  1 };
+
 	int dim = model.design_space().size();//number of dimensions
 
 	/* Graph title and label creation */

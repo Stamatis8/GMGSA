@@ -70,10 +70,29 @@ std::vector<scalar> SSV(PM modeler, int order){
 #endif
 
 				if(s == 0){// save non-scaling invariant volume (which is equal to 1)
-					M = modeler.moment(combinations.at(i).at(0),combinations.at(i).at(1),combinations.at(i).at(2),false,false);
+					
+#ifdef SSV_ALL_SCALING_INVARIANT
+					M = modeler.moment(combinations.at(i).at(0), combinations.at(i).at(1), combinations.at(i).at(2), true, true);
+#elif defined SSV_MOST_SCALING_INVARIANT// only non scaling invariant entry is volume when order == 0
+					if (order == 0 || order == 1) {// if SSV is of order zero or one, calculate actual volume
+						M = modeler.moment(combinations.at(i).at(0), combinations.at(i).at(1), combinations.at(i).at(2), false, false);
+					}
+					else {// if SSV is of order > 1, volume is set to 1 (scaling-invariant)
+						M = modeler.moment(combinations.at(i).at(0), combinations.at(i).at(1), combinations.at(i).at(2), true, true);
+					}
+#else
+					M = modeler.moment(combinations.at(i).at(0), combinations.at(i).at(1), combinations.at(i).at(2), false, false);
+#endif
+
 				}
 				else{
-					M = modeler.moment(combinations.at(i).at(0),combinations.at(i).at(1),combinations.at(i).at(2),true,true);
+
+#ifdef SSV_NONE_SCALING_INVARIANT
+					M = modeler.moment(combinations.at(i).at(0), combinations.at(i).at(1), combinations.at(i).at(2), true, false);
+#else
+					M = modeler.moment(combinations.at(i).at(0), combinations.at(i).at(1), combinations.at(i).at(2), true, true);
+#endif
+
 				}
 
 #ifdef SSV_REMOVE_ZEROS// Do not include moments identically equal to zero

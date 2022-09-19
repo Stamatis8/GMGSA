@@ -51,13 +51,13 @@ std::vector<std::string> WigleyTalkative(WigleyModeler m, std::string options) {
 			output.push_back("L");output.push_back("B");output.push_back("T");
 		}
 		else if (m.type == 1) {
-			output.push_back("L");output.push_back("B");output.push_back("T");output.push_back("$c_1$");output.push_back("c_2");output.push_back("c_3");
+			output.push_back("L");output.push_back("B");output.push_back("T");output.push_back("c_1");output.push_back("c_2");output.push_back("c_3");
 		}
 		else if (m.type == 2) {
-			output.push_back("L");output.push_back("B");
+			output.push_back("B/L");output.push_back("T/L");
 		}
 		else if (m.type == 3) {
-			output.push_back("L");output.push_back("B");output.push_back("T");output.push_back("L");output.push_back("B");
+			output.push_back("B/L");output.push_back("T/L");output.push_back("c_1");output.push_back("c_2");output.push_back("c_3");
 		}
 	}
 
