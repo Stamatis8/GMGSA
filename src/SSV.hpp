@@ -39,6 +39,8 @@ std::vector<scalar> SSV(PM modeler, int order){
 				- Only moments whose order is exactly 'order' are included
 	*/
 	
+	if (order == 1) return SSV<PM,scalar>(modeler, 0);// See reference
+
 	std::vector<scalar> SSV;// Shape signature vector	
 	int count;// counts elements in combinations
 	
@@ -74,7 +76,7 @@ std::vector<scalar> SSV(PM modeler, int order){
 #ifdef SSV_ALL_SCALING_INVARIANT
 					M = modeler.moment(combinations.at(i).at(0), combinations.at(i).at(1), combinations.at(i).at(2), true, true);
 #elif defined SSV_MOST_SCALING_INVARIANT// only non scaling invariant entry is volume when order == 0
-					if (order == 0 || order == 1) {// if SSV is of order zero or one, calculate actual volume
+					if (order == 0) {// if SSV is of order zero or one, calculate actual volume
 						M = modeler.moment(combinations.at(i).at(0), combinations.at(i).at(1), combinations.at(i).at(2), false, false);
 					}
 					else {// if SSV is of order > 1, volume is set to 1 (scaling-invariant)

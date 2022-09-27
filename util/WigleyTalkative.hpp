@@ -42,8 +42,13 @@ std::vector<std::string> WigleyTalkative(WigleyModeler m, std::string options) {
 		else if (m.type == 3) {
 			output.at(0) = "Wigley Hull with B/L, T/L, c1, c2, c3 parameters\\n";
 			output.at(0) += " B/L in [" + std::to_string(D.at(0).at(0)) + "," + std::to_string(D.at(0).at(1)) + "], T/L in [" + std::to_string(D.at(1).at(0)) + "," + std::to_string(D.at(1).at(1)) + "]\\n";
-			output.at(0) += " c1 in [" + std::to_string(D.at(3).at(0)) + "," + std::to_string(D.at(3).at(1)) + "], c2 in [" + std::to_string(D.at(4).at(0)) + "," + std::to_string(D.at(4).at(1)) + "], c3 in [" + std::to_string(D.at(5).at(0)) + "," + std::to_string(D.at(5).at(1)) + "]\\n";
+			output.at(0) += " c1 in [" + std::to_string(D.at(2).at(0)) + "," + std::to_string(D.at(2).at(1)) + "], c2 in [" + std::to_string(D.at(3).at(0)) + "," + std::to_string(D.at(3).at(1)) + "], c3 in [" + std::to_string(D.at(4).at(0)) + "," + std::to_string(D.at(4).at(1)) + "]\\n";
 			output.at(0) += " L = " + std::to_string(P.at(0)) + "\\n";
+		}
+		else if (m.type == 4) {
+			output.at(0) = "Wigley Hull with c1, c2, c3 parameters\\n";
+			output.at(0) += " c1 in [" + std::to_string(D.at(0).at(0)) + "," + std::to_string(D.at(0).at(1)) + "], c2 in [" + std::to_string(D.at(1).at(0)) + "," + std::to_string(D.at(1).at(1)) + "], c3 in [" + std::to_string(D.at(2).at(0)) + "," + std::to_string(D.at(2).at(1)) + "]\\n";
+			output.at(0) += " L = " + std::to_string(P.at(0)) + ", B = " + std::to_string(P.at(1)) + ", d = " + std::to_string(P.at(2)) + "\\n";
 		}
 	}
 	else if (options == "labels") {
@@ -58,6 +63,9 @@ std::vector<std::string> WigleyTalkative(WigleyModeler m, std::string options) {
 		}
 		else if (m.type == 3) {
 			output.push_back("B/L");output.push_back("T/L");output.push_back("c_1");output.push_back("c_2");output.push_back("c_3");
+		}
+		else if (m.type == 4) {
+			output.push_back("c_1");output.push_back("c_2");output.push_back("c_3");
 		}
 	}
 

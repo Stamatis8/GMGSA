@@ -39,8 +39,8 @@ int main() {
 
 	/* Experiment initialization */
 
-	std::vector<double> order_range = { 0, 9 };// SSV order range of experiment
-	long int N = 50000;// number of samples to be used in experiment
+	std::vector<double> order_range = { 0, 15 };// SSV order range of experiment
+	long int N = 14000;// number of samples to be used in experiment
 	int runs = 1;// number of runs of experiment
 
 	std::srand(11);// random seed 
@@ -49,12 +49,24 @@ int main() {
 
 	/* Wigley modeler initialization */
 
-	//WigleyModeler model{ { 0.8,1.2 }, { 0.08,0.12 }, { 0.05,0.075 }, 0.2, 0,  1 };
+	//old
+	//WigleyModeler model{ { 0.8,1.2 }, { 0.08,0.12 }, { 0.033,0.046 }, 0.2, 0,  1 };
 
-	WigleyModeler model{ { 0.75,1.25 }, { 0.072,0.12 }, { 0.103,0.1725 }, 0.2, 0,  1 };
+	//L,B,T
+	//WigleyModeler model{ { 0.75,1.25 }, { 0.072,0.12 }, { 0.103,0.1725 }, 0.2, 0,  1 };
 
-	//double c = 1;
-	//WigleyModeler model{ { c * 0.8,c * 1.2 }, { c * 0.08,c * 0.12 }, { c * 0.033,c * 0.046 }, 0.2, 0,  1 };
+	//L,B,T,c_1,c_2,c_3
+	//WigleyModeler model{ { 0.75,1.25 }, { 0.072,0.12 }, { 0.103,0.1725 }, { 0.15,0.25 }, { 0,0.4 },  {0.6,1} };
+
+	//B/L, T/L
+	//WigleyModeler model{ 1, { 0.07875,0.13125 }, { 0.12,0.2 }, 0.2, 0, 1, "ratios" };
+
+	//B/L, T/L, c_1, c_2, c_3
+	//WigleyModeler model{ 1, { 0.07875,0.13125 }, { 0.12,0.2 }, { 0.15,0.25 }, { 0,0.4 }, {0.6,1}, "ratios" };
+
+	//c_1,c_2,c_3
+	//WigleyModeler model{ 1, 0.096, 0.13775, { 0.15,0.25 }, { 0,0.4 },  {0.6,1} };
+	WigleyModeler model{ 1, 0.096, 0.13775, { 0,1 }, { 0,1 },  {0,1} };
 
 	int dim = model.design_space().size();//number of dimensions
 
@@ -113,7 +125,7 @@ int main() {
 	/* Constructing gnuplot script */
 
 	std::string message =
-		"set title \"" + title + "\"; set xlabel \"" + xlabel + "\"; set ylabel \"" + ylabel + "\" rotate by 0;"
+		"set title \"" + title + "\"; set yrange [0:1]; set xlabel \"" + xlabel + "\"; set ylabel \"" + ylabel + "\" rotate by 0;"
 		"set key outside;"
 		;
 

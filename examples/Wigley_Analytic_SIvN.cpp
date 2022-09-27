@@ -17,9 +17,11 @@
 #define GMGSA_USE_TBB
 
 //SSV Options
-//#define SSV_REMOVE_ZEROS
+#define SSV_REMOVE_ZEROS
 //#define SSV_EXACT_ORDER
 //#define SSV_NONE_SCALING_INVARIANT
+//#define SSV_ALL_SCALING_INVARIANT
+#define SSV_MOST_SCALING_INVARIANT
 
 #include "../util/timer.hpp"
 #include "../util/WriteToFile.hpp"
@@ -35,8 +37,8 @@ int main() {
 
 	std::vector<long int> N_range = { 2000, 20000 };// SSV order range of experiment
 	long int N_step = 2000;// calculate at N_range.at(0) + i*N_step until N_range.at(1)
-	int order = 2;// number of samples to be used in experiment
-	int runs = 1;// number of runs of experiment
+	int order = 9;// number of samples to be used in experiment
+	int runs = 4;// number of runs of experiment
 
 	std::srand(11);// random seed
 	//2321
@@ -46,15 +48,20 @@ int main() {
 	//old
 	//WigleyModeler model{ { 0.8,1.2 }, { 0.08,0.12 }, { 0.033,0.046 }, 0.2, 0,  1 };
 
-	//WigleyModeler model{ { 0.8,1.2 }, { 0.08,0.12 }, { 0.033,0.046 }, 0.2, 0,  1 };
-
-	double c = 1;
-	WigleyModeler model{ { c*0.8,c*1.2 }, { c*0.08,c*0.12 }, { c*0.033,c*0.046 }, 0.2, 0,  1 };
-
-	//WigleyModeler model{ 0.1,{0.06,0.15},{0.06,0.15},0.2,0,1,"ratios" };
-
 	//L,B,T
-	//WigleyModeler model{ { 0.8,1.2 }, { 0.072,0.12 }, { 0.06,0.216 }, 0.2, 0,  1 };
+	//WigleyModeler model{ { 0.75,1.25 }, { 0.072,0.12 }, { 0.103,0.1725 }, 0.2, 0,  1 };
+
+	//L,B,T,c_1,c_2,c_3
+	//WigleyModeler model{ { 0.75,1.25 }, { 0.072,0.12 }, { 0.103,0.1725 }, { 0.15,0.25 }, { 0,0.4 },  {0.6,1} };
+
+	//B/L, T/L
+	//WigleyModeler model{ 1, { 0.07875,0.13125 }, { 0.12,0.2 }, 0.2, 0, 1, "ratios" };
+
+	//B/L, T/L, c_1, c_2, c_3
+	//WigleyModeler model{ 1, { 0.07875,0.13125 }, { 0.12,0.2 }, { 0.15,0.25 }, { 0,0.4 }, {0.6,1}, "ratios" };
+
+	//c_1,c_2,c_3
+	WigleyModeler model{ 1, 0.096, 0.13775, { 0.15,0.25 }, { 0,0.4 },  {0.6,1} };
 
 	int dim = model.design_space().size();//number of dimensions
 
@@ -114,7 +121,7 @@ int main() {
 	/* Constructing gnuplot script */
 
 	std::string message =
-		"set title \"" + title + "\"; set xlabel \"" + xlabel + "\"; set ylabel \"" + ylabel + "\" rotate by 0;"
+		"set title \"" + title + "\"; set yrange [0:1]; set xlabel \"" + xlabel + "\"; set ylabel \"" + ylabel + "\" rotate by 0;"
 		"set key outside;"
 		;
 

@@ -73,6 +73,12 @@ class WigleyModeler{
 					Parameters = B/L, d/L, c1, c2, c3
 					Non-Parameters = Length
 				
+				type = 4:
+
+					constructor: WigleyModeler(L,B,d,{},{},{},"ratios")
+
+					Parameters = c1, c2, c3
+					Non-Parameters = Length, Breadth, Depth
 			
 	*/
 
@@ -188,6 +194,31 @@ public:
 		}
 	}
 
+	WigleyModeler(
+		double L_in,
+		double B_in,
+		double d_in,
+		std::vector<double> c1_range,
+		std::vector<double> c2_range,
+		std::vector<double> c3_range) {
+
+		this->type = 4;// (see above)
+
+		//Creating Design Space
+		this->design_space_attribute = { c1_range, c2_range, c3_range };
+
+		//Initializing L,B,d,c1,c2,c3
+		this->L = L_in;
+		this->B = B_in;
+		this->d = d_in;
+		this->c1 = (c1_range.at(0) + c1_range.at(1)) / 2;
+		this->c2 = (c2_range.at(0) + c2_range.at(1)) / 2;
+		this->c3 = (c3_range.at(0) + c3_range.at(1)) / 2;
+
+		//Initializing design
+		this->design = { this->c1, this->c2, this->c3 };
+	}
+
 	/* Evaluate */
 		
 	std::vector<double> evaluate(std::vector<double> args){
@@ -267,6 +298,14 @@ public:
 			this->c1 = this->design.at(2);
 			this->c2 = this->design.at(3);
 			this->c3 = this->design.at(4);
+
+			break;
+
+		case 4:
+
+			this->c1 = this->design.at(0);
+			this->c2 = this->design.at(1);
+			this->c3 = this->design.at(2);
 
 			break;
 		}
