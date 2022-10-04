@@ -82,6 +82,8 @@ std::vector<std::vector<scalar>> WigleyAnalyticSobol(WigleyModeler modeler, doub
 		}
 	}
 
+	WriteToFile(combinations, "DEBUG_combinations");//DEBUG
+
 	/* Retrieving modeler constant parameters and design space */
 
 	std::vector<double> particulars = modeler.get_particulars();// L,B,T,c1,c2,c3 of modeler
@@ -117,8 +119,8 @@ std::vector<std::vector<scalar>> WigleyAnalyticSobol(WigleyModeler modeler, doub
 	scalar fj;// fj = f(c1,c2,c3) at p_j,q_j,r_j
 	scalar Zi, Xi, sum;// fj related
 
-	scalar DeltaL_P, DeltaB_Q, Deltad_R;// ie \Delta_L^{P_j/3+1} (see formulation)
-	scalar DeltaL_2P, DeltaB_2Q, Deltad_2R;// ie \Delta_L^{2P_j/3+1} (see formulation)
+	scalar IjL, IjB, Ijd;// see formulation
+	scalar Ij2L, Ij2B, Ij2d;// see formulation
 
 	scalar cj, NjL, NjB, Njd, Dj;// see formulation
 
@@ -128,9 +130,9 @@ std::vector<std::vector<scalar>> WigleyAnalyticSobol(WigleyModeler modeler, doub
 
 	for (double j = 2; j < s_bar; j++) {
 
-		p_j = combinations.at(j).at(1);
+		p_j = combinations.at(j).at(0);
 		q_j = combinations.at(j).at(1);
-		r_j = combinations.at(j).at(1);
+		r_j = combinations.at(j).at(2);
 
 		P_j = 2 * p_j - q_j - r_j;
 		Q_j = 2 * q_j - p_j - r_j;
@@ -187,34 +189,64 @@ std::vector<std::vector<scalar>> WigleyAnalyticSobol(WigleyModeler modeler, doub
 			(std::pow(4 * (scalar(1 / 3) + c1 / 15 + c2 / 35 + c3 * 256 / 3465) / 3, (p_j + q_j + r_j) / 3 + 1) *
 				std::pow(2, p_j + q_j) * (q_j + 1));
 
-		/* Calculate \Delta_{\bf L}^{P_j/3+1}*/
+		/* Calculate IjL,IjB,Ijd,Ij2L,Ij2B,Ij2d */
 
-		DeltaL_P = std::pow(L_1,P_j/3+1) - std::pow(L_0,P_j/3+1); 
-		DeltaB_Q = std::pow(B_1,Q_j/3+1) - std::pow(B_0,Q_j/3+1); 
-		Deltad_R = std::pow(d_1,R_j/3+1) - std::pow(d_0,R_j/3+1); 
+		if (P_j == -3) {
+			IjL = std::log(L_1 / L_0);
+		}
+		else {
+			IjL = (std::pow(L_1, P_j / 3 + 1) - std::pow(L_0, P_j / 3 + 1)) * 3 / (P_j + 3);
+		}
 
-		DeltaL_2P = std::pow(L_1,P_j*2/3+1) - std::pow(L_0,P_j*2/3+1); 
-		DeltaB_2Q = std::pow(B_1,Q_j*2/3+1) - std::pow(B_0,Q_j*2/3+1); 
-		Deltad_2R = std::pow(d_1,R_j*2/3+1) - std::pow(d_0,R_j*2/3+1); 
+		if (Q_j == -3) {
+			IjB = std::log(B_1 / B_0);
+		}
+		else {
+			IjB = (std::pow(B_1, Q_j / 3 + 1) - std::pow(B_0, Q_j / 3 + 1)) * 3 / (Q_j + 3);
+		}
+
+		if (R_j == -3) {
+			Ijd = std::log(d_1 / d_0);
+		}
+		else {
+			Ijd = (std::pow(d_1, R_j / 3 + 1) - std::pow(d_0, R_j / 3 + 1)) * 3 / (R_j + 3);
+		}
+
+		if (2*P_j == -3) {
+			Ij2L = std::log(L_1 / L_0);
+		}
+		else {
+			Ij2L = (std::pow(L_1, P_j * 2 / 3 + 1) - std::pow(L_0, P_j * 2 / 3 + 1)) * 3 / (P_j * 2 + 3);
+		}
+
+		if (2*Q_j == -3) {
+			Ij2B = std::log(B_1 / B_0);
+		}
+		else {
+			Ij2B = (std::pow(B_1, Q_j * 2 / 3 + 1) - std::pow(B_0, Q_j * 2 / 3 + 1)) * 3 / (Q_j * 2 + 3);
+		}
+
+		if (2*R_j == -3) {
+			Ij2d = std::log(d_1 / d_0);
+		}
+		else {
+			Ij2d = (std::pow(d_1, R_j * 2/ 3 + 1) - std::pow(d_0, R_j * 2 / 3 + 1)) * 3 / (R_j * 2 + 3);
+		}
 
 		/* Calculate cj */
 
-		cj = fj*27*DeltaL_P*DeltaB_Q*Deltad_R/(DeltaL*DeltaB*Deltad*(P_j+3)*(Q_j+3)*(R_j+3));
-
+		cj = fj * IjL * IjB * Ijd / (DeltaL * DeltaB * Deltad);
 		/* Calculate Dj */
 
-		Dj = fj*fj*27*DeltaL_2P*DeltaB_2Q*Deltad_2R/(DeltaL*DeltaB*Deltad*(P_j*2+3)*(Q_j*2+3)*(R_j*2+3)) - cj*cj;
+		Dj = fj*fj*Ij2L*Ij2B*Ij2d/(DeltaL*DeltaB*Deltad) - cj*cj;
 
 		/* Calculate Nj for all parameters */
 
-		NjL = DeltaL_2P*3*std::pow(fj*9*DeltaB_Q*Deltad_R/(DeltaB*Deltad*(Q_j+3)*(R_j+3)),2)/(DeltaL*(P_j*2+3))
-			- cj*cj;
+		NjL = Ij2L*std::pow(fj*IjB*Ijd/(DeltaB*Deltad),2)/DeltaL - cj*cj;
 
-		NjB = DeltaB_2Q*3*std::pow(fj*9*DeltaL_P*Deltad_R/(DeltaL*Deltad*(P_j+3)*(R_j+3)),2)/(DeltaB*(Q_j*2+3))
-			- cj*cj;
+		NjB = Ij2B * std::pow(fj * IjL * Ijd / (DeltaL * Deltad), 2) / DeltaB - cj * cj;
 
-		Njd = Deltad_2R*3*std::pow(fj*9*DeltaB_Q*DeltaL_P/(DeltaB*DeltaL*(Q_j+3)*(P_j+3)),2)/(Deltad*(R_j*2+3))
-			- cj*cj;
+		Njd = Ij2d * std::pow(fj * IjL * IjB / (DeltaL * DeltaB), 2) / Deltad - cj * cj;
 
 		/* Add Nj, Dj to global Nominator, Denominator */
 
