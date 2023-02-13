@@ -57,6 +57,10 @@ std::vector<std::vector<double>> DPS(
 		Note: S_hat should be passed as an empty vector, if it is not to be used. Ie DPS(X,std::vector<std::vector<double>>(),N,ns,i_max,omega)
 	*/
 
+	bool UseSimpleMetaheuristic = true;
+	//if true, attempts to generate new samples with simple monte carlo
+	//if false, attempts to generate new samples according to derivative of criterion
+
 	int n = X.size(); // number of parameters in design space
 	std::vector<std::vector<std::vector<double>>> P(N, std::vector<std::vector<double>>(ns, std::vector<double>(n,0))); // population
 	
@@ -132,12 +136,14 @@ std::vector<std::vector<double>> DPS(
 						M = Enorm(S.at(p),S.at(q));
 						F1S += 1/(M*M);
 						
-						if (p == L || q == L) {
-							int coef = -2/(M*M*M*M);
-							if (q == L) coef *= -1;
-							for (int i = 0; i < n; i++){
-								DF1.at(i) += coef*(S.at(p).at(i) - S.at(q).at(i));
-							} 
+						if(!UseSimpleMetaheuristic){
+							if (p == L || q == L) {
+								int coef = -2/(M*M*M*M);
+								if (q == L) coef *= -1;
+								for (int i = 0; i < n; i++){
+									DF1.at(i) += coef*(S.at(p).at(i) - S.at(q).at(i));
+								} 
+							}
 						}
 					}
 				}
@@ -156,11 +162,13 @@ std::vector<std::vector<double>> DPS(
 							M = Enorm(S.at(p),S_hat.at(q));
 							F3S += 1/(M*M);
 							
-							if (p == L) {
-								int coef = -2/(M*M*M*M);
-								for (int i = 0; i < n; i++){
-									DF3.at(i) += coef*(S.at(p).at(i) - S_hat.at(q).at(i));
-								} 
+							if(!UseSimpleMetaheuristic){
+								if (p == L) {
+									int coef = -2/(M*M*M*M);
+									for (int i = 0; i < n; i++){
+										DF3.at(i) += coef*(S.at(p).at(i) - S_hat.at(q).at(i));
+									} 
+								}
 							}
 						}
 					}
@@ -168,34 +176,39 @@ std::vector<std::vector<double>> DPS(
 				
 				/* Calculating meta-heuristically x_c_prime and updating S_prime */
 				
-				for (int i = 0; i < n; i++){// Total effect of 1st and 3rd criterion
-					DF13.at(i) = DF1.at(i) + DF3.at(i);
+				if(!UseSimpleMetaheuristic){
+					for (int i = 0; i < n; i++){// Total effect of 1st and 3rd criterion
+						DF13.at(i) = DF1.at(i) + DF3.at(i);
+					}
+					std::vector<double> DF13_abs = DF13;
+					for (int i = 0; i < n; i++){
+						if (DF13.at(i) < 0) DF13_abs.at(i) *= -1;
+					}
+					int i_maxchange = std::max_element(DF13_abs.begin(),DF13_abs.end()) - DF13_abs.begin();// parameter with max change on F1(S)
+					
+					x_c_prime = S.at(L);
+					double delta = std::max(N*Delta.at(i_maxchange)/(5*(iteration+1)),Delta.at(i_maxchange)/2);// increment of i_maxchange parameter
+																											// move less as iterations increase
+					if (DF13.at(i_maxchange) < 0) {// increase i_maxchange parameter to decrease F13
+						if (S.at(L).at(i_maxchange) + delta > X.at(i_maxchange).at(1)) {
+							x_c_prime.at(i_maxchange) = X.at(i_maxchange).at(1); 
+						}
+						else {
+							x_c_prime.at(i_maxchange) += delta;
+						}
+					}
+					else {// decrease i_maxchange parameter to decrease F13
+						delta *= -1;
+						if (S.at(L).at(i_maxchange) + delta < X.at(i_maxchange).at(0)) {
+							x_c_prime.at(i_maxchange) = X.at(i_maxchange).at(0); 
+						}
+						else {
+							x_c_prime.at(i_maxchange) += delta;
+						}
+					}
 				}
-				std::vector<double> DF13_abs = DF13;
-				for (int i = 0; i < n; i++){
-					if (DF13.at(i) < 0) DF13_abs.at(i) *= -1;
-				}
-				int i_maxchange = std::max_element(DF13_abs.begin(),DF13_abs.end()) - DF13_abs.begin();// parameter with max change on F1(S)
-				
-				x_c_prime = S.at(L);
-				double delta = std::max(N*Delta.at(i_maxchange)/(5*(iteration+1)),Delta.at(i_maxchange)/2);// increment of i_maxchange parameter
-																										// move less as iterations increase
-				if (DF13.at(i_maxchange) < 0) {// increase i_maxchange parameter to decrease F13
-					if (S.at(L).at(i_maxchange) + delta > X.at(i_maxchange).at(1)) {
-						x_c_prime.at(i_maxchange) = X.at(i_maxchange).at(1); 
-					}
-					else {
-						x_c_prime.at(i_maxchange) += delta;
-					}
-				}
-				else {// decrease i_maxchange parameter to decrease F13
-					delta *= -1;
-					if (S.at(L).at(i_maxchange) + delta < X.at(i_maxchange).at(0)) {
-						x_c_prime.at(i_maxchange) = X.at(i_maxchange).at(0); 
-					}
-					else {
-						x_c_prime.at(i_maxchange) += delta;
-					}
+				else{
+					x_c_prime = SimpleMonteCarlo(X,1).at(0);
 				}
 				
 				S_prime = S;
@@ -304,8 +317,8 @@ std::vector<std::vector<double>> DPS(
 				}
 				
 				/* Comparing F, F_prime and updating P */
-				score.at(c) = std::min(F1S + F2S + F3S, F1S_prime + F2S_prime + F3S_prime);		
-				if (F1S + F2S + F3S > F1S_prime + F2S_prime + F3S_prime){
+				score.at(c) = std::min(F1S + omega*F2S + F3S, F1S_prime + omega*F2S_prime + F3S_prime);		
+				if (F1S + omega*F2S + F3S > F1S_prime + omega*F2S_prime + F3S_prime){
 					P.at(L).at(c) = x_c_prime;
 				}
 					
