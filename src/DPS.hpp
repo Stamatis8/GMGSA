@@ -5,6 +5,8 @@
 #include <cmath>
 #include <algorithm>
 
+#include "SimpleMonteCarlo.hpp"
+
 std::vector<std::vector<double>> DPS(
 	std::vector<std::vector<double>> X,
 	std::vector<std::vector<double>> S_hat,
