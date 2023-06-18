@@ -1,17 +1,17 @@
 # Geometric Moment-dependent Global Sensitivity Analysis (GMGSA)
 
-- C++ header library to preform geometric-moment based GSA as in [1]
-- This library attaches to an existant parametric modeler, for which the requirements are listed below
+- C++ header library to perform geometric-moment based GSA as in [1]
+- This library attaches to an existent parametric modeler, for which the requirements are listed below
 - The parametric modeler is used as `class template` with minimal requirements, which means that the wrapper around already existing modelers should be is easy to build
 
-# Dependancies
+# Dependencies
 
 - Standard Library
 
 ### Optional (included in `src`)
 
 - This [https://github.com/Stamatis8/geom_moments](https://github.com/Stamatis8/geom_moments) repository. Used to calculate geometric moments. It is already included in `src` file
-- This [https://github.com/Stamatis8/smpl_triangulation](https://github.com/Stamatis8/smpl_triangulation) repository. Used in examples to constuct triangulation of surface from parametrized model. It is also used to construct .STL files from the various designs. It is already included in `src` file
+- This [https://github.com/Stamatis8/smpl_triangulation](https://github.com/Stamatis8/smpl_triangulation) repository. Used in examples to construct triangulation of surface from parametrized model. It is also used to construct .STL files from the various designs. It is already included in `src` file
 
 ### Optional (not included in `src`)
 
@@ -88,7 +88,7 @@ The requirements for the more minimal modeler class then become:
 			with input args
 			
 	- modeler.domain()
-		- retrurns std::vector<std::vector<double>> with each element being the upper and lower bound for each
+		- returns std::vector<std::vector<double>> with each element being the upper and lower bound for each
 			surface/design parameter for the current design.
     	- domain must have two elements (ie a surface design)
 
@@ -105,7 +105,7 @@ Thus, a good understanding of the underlying physics is necessary to perform a g
 
 With this in mind, a brief description of the method follows. We assume that we are given some design $\cal{G}$ in $\mathbb{R}^3$, parametrized via $n$ parameters $t_i,\ i=1,...,n$. This means that there is a parametric modeller $\cal{P}$ which for each ${\bf t}\in \mathbb{R}^n$, produces some new shape $\cal{P}({\bf t})$. We can then construct the Shape Signature Vector (SSV) of order $s$ of $\cal{P}({\bf t})$. SSV comprises of all moments of $\cal{P}({\bf t})$ and their invariants up to order $s$. The goal is to measure the effect each parameter has on the SSV, so that a subset of the most important parameters can be identified.
 
-For univariate outputs, Sobol's global sensitivity indices [2] are based on a decomposition of the output-function into functions of progressively more inputs (see eq.12 of [1]) reffered to as ANOVA (functional ANalysis Of VAriance) decomposition. The terms with only one parameter capture the effect of said parameter on the variance of the output. The other terms with more parameters capture the *leftover* effect of the interaction between these parameters on the variance of the output. However, in general, SSV will be an element of $\mathbb{R}^k$, $k>1$ so univariate SA approaches will not suffice. In [3,4] a generalization of this approach to multivariate outputs is developed, called the Covariance-Decomposition Approach.
+For univariate outputs, Sobol's global sensitivity indices [2] are based on a decomposition of the output-function into functions of progressively more inputs (see eq.12 of [1]) referred to as ANOVA (functional ANalysis Of VAriance) decomposition. The terms with only one parameter capture the effect of said parameter on the variance of the output. The other terms with more parameters capture the *leftover* effect of the interaction between these parameters on the variance of the output. However, in general, SSV will be an element of $\mathbb{R}^k$, $k>1$ so univariate SA approaches will not suffice. In [3,4] a generalization of this approach to multivariate outputs is developed, called the Covariance-Decomposition Approach.
 
 Finally, having calculated the sensitivity indices of each parameter $t_i$ with respect to the SSV, there are a number of approaches for selecting a subset of parameters, as discussed in [1]. The output of this tool will be the sensitivity indices thus this choice is left up to the user.
 
